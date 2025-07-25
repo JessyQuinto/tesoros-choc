@@ -8,33 +8,50 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Tesoros Chocó Design System - Inspired by Colombian nature */
+    --background: 42 100% 98%;
+    --foreground: 25 25% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 25 25% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 25 25% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Chocó Earth Tones - Primary brand colors */
+    --primary: 25 100% 35%; /* Rich earth brown */
+    --primary-foreground: 42 100% 98%;
+    --primary-hover: 25 100% 30%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Forest Green Secondary */
+    --secondary: 152 60% 25%;
+    --secondary-foreground: 42 100% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Warm accent colors */
+    --accent: 35 90% 55%; /* Warm gold */
+    --accent-foreground: 25 25% 15%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --muted: 42 30% 95%;
+    --muted-foreground: 25 15% 45%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 42 100% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 42 20% 88%;
+    --input: 42 20% 92%;
+    --ring: 25 100% 35%;
+
+    /* Custom Chocó colors */
+    --choco-green: 152 60% 25%; /* Deep forest green */
+    --choco-gold: 35 90% 55%; /* Golden yellow */
+    --choco-earth: 25 100% 35%; /* Earth brown */
+    --choco-cream: 42 100% 95%; /* Cream white */
+    --choco-wood: 30 40% 40%; /* Wood brown */
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--choco-wood)));
+    --gradient-nature: linear-gradient(135deg, hsl(var(--choco-green)), hsl(var(--choco-gold)));
+    --gradient-earth: linear-gradient(180deg, hsl(var(--choco-cream)), hsl(var(--background)));
 
     --radius: 0.5rem;
 

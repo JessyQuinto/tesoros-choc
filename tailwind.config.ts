@@ -26,7 +26,8 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					hover: 'hsl(var(--primary-hover))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -51,6 +52,14 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				// Tesoros Chocó Custom Colors
+				choco: {
+					green: 'hsl(var(--choco-green))',
+					gold: 'hsl(var(--choco-gold))',
+					earth: 'hsl(var(--choco-earth))',
+					cream: 'hsl(var(--choco-cream))',
+					wood: 'hsl(var(--choco-wood))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
