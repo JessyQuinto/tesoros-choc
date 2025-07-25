@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
 import { ShoppingBag, MessageCircle, User, LogOut, Menu, X } from 'lucide-react';
 
 export const Header = () => {
   const { user, logout } = useAuth();
+  const { totalItems } = useCart();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -64,8 +66,13 @@ export const Header = () => {
 
                 {/* Shopping Bag (for buyers) */}
                 {user.role === 'buyer' && (
-                  <Button variant="ghost" size="sm" onClick={() => navigate('/cart')}>
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/cart')} className="relative">
                     <ShoppingBag className="h-5 w-5" />
+                    {totalItems > 0 && (
+                      <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs bg-choco-earth">
+                        {totalItems}
+                      </Badge>
+                    )}
                   </Button>
                 )}
 
