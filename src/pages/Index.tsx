@@ -102,14 +102,25 @@ const Index = () => {
               </Button>
               
               {!user && (
-                <Button 
-                  onClick={() => navigate('/auth')}
-                  variant="outline"
-                  className="h-14 px-8 text-lg border-2 border-primary/30 hover:border-primary hover:bg-primary/5 text-foreground"
-                >
-                  <ShoppingBag className="mr-3 h-5 w-5" />
-                  Comenzar a Vender
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button 
+                    onClick={() => navigate('/auth?role=buyer')}
+                    variant="outline"
+                    className="h-14 px-6 text-lg border-2 border-primary/30 hover:border-primary hover:bg-primary/5 text-foreground"
+                  >
+                    <ShoppingBag className="mr-2 h-5 w-5" />
+                    Registrarse como Comprador
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => navigate('/auth?role=seller')}
+                    variant="secondary"
+                    className="h-14 px-6 text-lg bg-secondary hover:bg-secondary/90 text-white"
+                  >
+                    <Users className="mr-2 h-5 w-5" />
+                    Registrarse como Vendedor
+                  </Button>
+                </div>
               )}
             </div>
 

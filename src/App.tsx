@@ -47,6 +47,7 @@ import PlatformConfiguration from "./pages/PlatformConfiguration";
 import AuditSystem from "./pages/AuditSystem";
 import PaymentManagement from "./pages/PaymentManagement";
 import ProductModeration from "./pages/ProductModeration";
+import PendingApproval from "./pages/PendingApproval";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,9 @@ const App = () => (
                     <Routes>
                       {/* Auth Routes */}
                       <Route path="/auth" element={<AuthPage />} />
+                      <Route path="/login" element={<AuthPage />} />
+                      <Route path="/register" element={<AuthPage />} />
+                      <Route path="/pending-approval" element={<ProtectedRoute allowedRoles={['pending_vendor']}><PendingApproval /></ProtectedRoute>} />
                       <Route path="/select-role" element={
                         <RoleSelectionRoute>
                           <SelectRolePage />

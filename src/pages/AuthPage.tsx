@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { GoogleIcon } from '@/components/ui/icons';
 
 const loginSchema = z.object({
@@ -22,15 +24,26 @@ const registerSchema = z.object({
   name: z.string().min(2, 'El nombre es requerido'),
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  confirmPassword: z.string().min(6, 'Confirmar contraseña es requerido'),
+  role: z.enum(['buyer', 'seller'], {
+    required_error: 'Debes seleccionar un tipo de cuenta',
+  }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Las contraseñas no coinciden",
+  path: ["confirmPassword"],
 });
 
 export function AuthPage() {
   const [activeTab, setActiveTab] = useState('login');
+  const [searchParams] = useSearchParams();
   const { login, register, loginWithGoogle, error, isLoading, clearError } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
+  
+  // Obtener el rol preseleccionado de los parámetros de URL
+  const preselectedRole = searchParams.get('role') as UserRole || 'buyer';
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -39,20 +52,39 @@ export function AuthPage() {
 
   const registerForm = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: '', email: '', password: '' },
+    defaultValues: { 
+      name: '', 
+      email: '', 
+      password: '', 
+      confirmPassword: '',
+      role: preselectedRole 
+    },
   });
 
   // Limpiar errores cuando la pestaña cambia
   useEffect(() => {
     clearError();
-  }, [activeTab, clearError]);
+    // Si viene con un rol preseleccionado, activar la pestaña de registro
+    if (searchParams.get('role')) {
+      setActiveTab('register');
+    }
+  }, [activeTab, clearError, searchParams]);
 
   const onLogin = async (values: z.infer<typeof loginSchema>) => {
     await login(values.email, values.password);
   };
 
   const onRegister = async (values: z.infer<typeof registerSchema>) => {
-    await register(values.email, values.password, values.name, 'buyer');
+    const success = await register(values.email, values.password, values.name, values.role);
+    
+    if (success) {
+      toast({
+        title: "¡Cuenta creada!",
+        description: values.role === 'seller' 
+          ? "Tu cuenta se creó exitosamente. Como vendedor, necesitas aprobación del administrador para publicar productos."
+          : "Tu cuenta se creó exitosamente. ¡Bienvenido a Tesoros Chocó!"
+      });
+    }
   };
   
   const onGoogleSignIn = async () => {
@@ -65,7 +97,7 @@ export function AuthPage() {
         toast({ title: '¡Autenticación exitosa!' });
         navigate(from, { replace: true });
     }
-  }, [isLoading, error, navigate, from, loginForm.formState.isSubmitSuccessful, registerForm.formState.isSubmitSuccessful]);
+  }, [isLoading, error, navigate, from, loginForm.formState.isSubmitSuccessful, registerForm.formState.isSubmitSuccessful, toast]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -144,6 +176,45 @@ export function AuthPage() {
                     <FormItem>
                       <FormLabel>Contraseña</FormLabel>
                       <FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="confirmPassword" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirmar Contraseña</FormLabel>
+                      <FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="role" render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Tipo de cuenta</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="space-y-2"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="buyer" id="buyer" />
+                            <Label htmlFor="buyer" className="flex-1 cursor-pointer">
+                              <div>
+                                <p className="font-medium">Comprador</p>
+                                <p className="text-sm text-muted-foreground">Busca y compra productos artesanales</p>
+                              </div>
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="seller" id="seller" />
+                            <Label htmlFor="seller" className="flex-1 cursor-pointer">
+                              <div>
+                                <p className="font-medium">Vendedor</p>
+                                <p className="text-sm text-muted-foreground">Vende tus productos artesanales (requiere aprobación)</p>
+                              </div>
+                            </Label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
