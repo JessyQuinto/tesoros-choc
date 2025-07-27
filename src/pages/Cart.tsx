@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Header } from '@/components/Layout/Header';
+import { Footer } from '@/components/Layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
+import { LoadingSpinner } from '@/components/ui/loading-skeleton';
 import { 
   ShoppingBag, 
   Plus, 
@@ -25,25 +27,48 @@ const Cart = () => {
   const { toast } = useToast();
   
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
+  const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set());
 
   const shippingCost = totalPrice > 100000 ? 0 : 8000; // Free shipping over 100k
   const totalWithShipping = totalPrice + shippingCost;
 
-  const handleQuantityChange = (productId: number, newQuantity: number) => {
+  const handleQuantityChange = async (productId: number, newQuantity: number) => {
+    setUpdatingItems(prev => new Set(prev).add(productId));
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
     updateQuantity(productId, newQuantity);
+    
+    setUpdatingItems(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(productId);
+      return newSet;
+    });
   };
 
-  const handleRemoveItem = (productId: number, productName: string) => {
+  const handleRemoveItem = async (productId: number, productName: string) => {
+    setUpdatingItems(prev => new Set(prev).add(productId));
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
     removeFromCart(productId);
+    setUpdatingItems(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(productId);
+      return newSet;
+    });
+    
     toast({
       title: "Producto eliminado",
       description: `${productName} se eliminó del carrito`
     });
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!user) {
-      navigate('/login');
+      navigate('/auth');
       return;
     }
 
@@ -82,7 +107,7 @@ const Cart = () => {
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Restringido</h2>
               <p className="mb-4">Debes iniciar sesión como comprador para ver el carrito.</p>
-              <Button onClick={() => navigate('/login')}>
+              <Button onClick={() => navigate('/auth')}>
                 Iniciar Sesión
               </Button>
             </CardContent>
@@ -170,9 +195,13 @@ const Cart = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                          disabled={item.quantity <= 1}
+                          disabled={item.quantity <= 1 || updatingItems.has(item.id)}
                         >
-                          <Minus className="h-3 w-3" />
+                          {updatingItems.has(item.id) ? (
+                            <LoadingSpinner size="sm" />
+                          ) : (
+                            <Minus className="h-3 w-3" />
+                          )}
                         </Button>
                         <span className="w-8 text-center font-medium">
                           {item.quantity}
@@ -181,9 +210,13 @@ const Cart = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                          disabled={item.quantity >= item.maxStock}
+                          disabled={item.quantity >= item.maxStock || updatingItems.has(item.id)}
                         >
-                          <Plus className="h-3 w-3" />
+                          {updatingItems.has(item.id) ? (
+                            <LoadingSpinner size="sm" />
+                          ) : (
+                            <Plus className="h-3 w-3" />
+                          )}
                         </Button>
                       </div>
 
@@ -196,9 +229,14 @@ const Cart = () => {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleRemoveItem(item.id, item.name)}
+                          disabled={updatingItems.has(item.id)}
                           className="text-destructive hover:text-destructive"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {updatingItems.has(item.id) ? (
+                            <LoadingSpinner size="sm" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
                         </Button>
                       </div>
                     </div>
@@ -258,17 +296,24 @@ const Cart = () => {
                     </span>
                   </div>
 
-                  <Button 
+                  <Button
                     onClick={handleCheckout}
                     disabled={isProcessingOrder}
                     className="w-full"
                     size="lg"
                   >
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    {isProcessingOrder ? 'Procesando...' : 'Proceder al Pago'}
-                  </Button>
-
-                  <div className="text-xs text-muted-foreground text-center">
+                    {isProcessingOrder ? (
+                      <div className="flex items-center">
+                        <LoadingSpinner size="sm" />
+                        <span className="ml-2">Procesando...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Proceder al Pago
+                      </>
+                    )}
+                  </Button>                  <div className="text-xs text-muted-foreground text-center">
                     Compra segura y protegida
                   </div>
                 </CardContent>
@@ -319,6 +364,7 @@ const Cart = () => {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 };

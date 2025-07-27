@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Header } from '@/components/Layout/Header';
+import { Footer } from '@/components/Layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
@@ -131,7 +132,7 @@ const Checkout = () => {
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Restringido</h2>
               <p className="mb-4">Debes iniciar sesión como comprador para realizar el checkout.</p>
-              <Button onClick={() => navigate('/login')}>
+              <Button onClick={() => navigate('/auth')}>
                 Iniciar Sesión
               </Button>
             </CardContent>
@@ -457,6 +458,7 @@ const Checkout = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

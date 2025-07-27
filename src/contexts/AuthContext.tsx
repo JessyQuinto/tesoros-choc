@@ -1,155 +1,139 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-export type UserRole = 'buyer' | 'seller' | 'admin';
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: UserRole;
-  isApproved?: boolean;
-  avatar?: string;
-}
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { authService, AuthUser, RegisterData, LoginData, UpdateProfileData } from '../services/auth.service';
+import { userRepository, UserProfile } from '../services/UserRepository';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string, name: string, role: UserRole) => Promise<boolean>;
-  logout: () => void;
+  user: UserProfile | null;
+  authUser: AuthUser | null;
+  login: (data: LoginData) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
+  updateUserProfile: (data: UpdateProfileData & { role?: 'buyer' | 'seller', needsRoleSelection?: boolean }) => Promise<void>;
   isLoading: boolean;
+  error: string | null;
+  clearError: () => void;
+  needsRoleSelection: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) {
+    throw new Error('useAuth debe usarse dentro de un AuthProvider');
   }
   return context;
 };
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [needsRoleSelection, setNeedsRoleSelection] = useState(false);
+  
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // Mock users database
-  const mockUsers = [
-    {
-      id: '1',
-      email: 'admin@tesoroschoco.com',
-      password: 'admin123',
-      name: 'Administrator',
-      role: 'admin' as UserRole,
-      isApproved: true
-    },
-    {
-      id: '2',
-      email: 'comprador@test.com',
-      password: 'buyer123',
-      name: 'María González',
-      role: 'buyer' as UserRole,
-      isApproved: true
-    },
-    {
-      id: '3',
-      email: 'vendedor@test.com',
-      password: 'seller123',
-      name: 'Carlos Mosquera',
-      role: 'seller' as UserRole,
-      isApproved: true
+  const clearError = useCallback(() => setError(null), []);
+
+  const fetchUserProfile = useCallback(async () => {
+    try {
+      const userProfile = await userRepository.getUserProfile();
+      setUser(userProfile);
+      if (userProfile.needsRoleSelection) {
+        setNeedsRoleSelection(true);
+        navigate('/select-role', { replace: true });
+      } else {
+        setNeedsRoleSelection(false);
+      }
+      return userProfile;
+    } catch (apiError: any) {
+      if (apiError.message.includes('Usuario no encontrado')) {
+        setNeedsRoleSelection(true);
+        setUser(null);
+        navigate('/select-role', { replace: true });
+      } else {
+        setError('No se pudo cargar el perfil del usuario.');
+        setUser(null);
+      }
+      throw apiError;
     }
-  ];
+  }, [navigate]);
 
   useEffect(() => {
-    // Simulate loading time
-    const timer = setTimeout(() => {
-      const savedUser = localStorage.getItem('tesorosChoco_user');
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
+    setIsLoading(true);
+    const unsubscribe = authService.onAuthStateChanged(async (currentAuthUser) => {
+      setAuthUser(currentAuthUser);
+      if (currentAuthUser) {
+        try {
+          await fetchUserProfile();
+        } catch (e) {
+            // Error ya manejado en fetchUserProfile
+        }
+      } else {
+        setUser(null);
+        setNeedsRoleSelection(false);
       }
       setIsLoading(false);
-    }, 1000);
+    });
+    return () => unsubscribe();
+  }, [fetchUserProfile]);
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const performAuthAction = async (action: () => Promise<any>, successMessage?: string) => {
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const foundUser = mockUsers.find(u => u.email === email && u.password === password);
-    
-    if (foundUser) {
-      const userWithoutPassword = {
-        id: foundUser.id,
-        email: foundUser.email,
-        name: foundUser.name,
-        role: foundUser.role,
-        isApproved: foundUser.isApproved
-      };
-      
-      setUser(userWithoutPassword);
-      localStorage.setItem('tesorosChoco_user', JSON.stringify(userWithoutPassword));
-      setIsLoading(false);
-      return true;
+    clearError();
+    try {
+      await action();
+      // El listener onAuthStateChanged se encargará del resto
+    } catch (err: any) {
+      setError(err.message || 'Ocurrió un error desconocido.');
+      setIsLoading(false); // Detener la carga en caso de error
+      throw err; // Relanzar para que el componente que llama pueda manejarlo si es necesario
     }
-    
-    setIsLoading(false);
-    return false;
   };
 
-  const register = async (email: string, password: string, name: string, role: UserRole): Promise<boolean> => {
+  const login = (data: LoginData) => performAuthAction(() => authService.login(data));
+  const register = (data: RegisterData) => performAuthAction(() => authService.register(data));
+  const loginWithGoogle = () => performAuthAction(() => authService.loginWithGoogle());
+  
+  const logout = async () => {
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Check if user already exists
-    const existingUser = mockUsers.find(u => u.email === email);
-    if (existingUser) {
-      setIsLoading(false);
-      return false;
+    try {
+        await authService.logout();
+        setUser(null);
+        setAuthUser(null);
+        setNeedsRoleSelection(false);
+        navigate('/auth');
+    } catch(err: any) {
+        setError(err.message);
+    } finally {
+        setIsLoading(false);
     }
-    
-    const newUser = {
-      id: String(mockUsers.length + 1),
-      email,
-      name,
-      role,
-      isApproved: role === 'buyer' // Buyers are auto-approved, sellers need approval
-    };
-    
-    mockUsers.push({ ...newUser, password });
-    
-    setUser(newUser);
-    localStorage.setItem('tesorosChoco_user', JSON.stringify(newUser));
-    setIsLoading(false);
-    return true;
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('tesorosChoco_user');
+  const updateUserProfile = async (data: UpdateProfileData & { role?: 'buyer' | 'seller', needsRoleSelection?: boolean }) => {
+    await performAuthAction(async () => {
+        await userRepository.updateUserProfile(data);
+        await fetchUserProfile(); // Refrescar perfil
+    });
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
+    authUser,
     login,
     register,
+    loginWithGoogle,
     logout,
-    isLoading
+    updateUserProfile,
+    isLoading,
+    error,
+    clearError,
+    needsRoleSelection,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

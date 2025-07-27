@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { Header } from '@/components/Layout/Header';
+import { Footer } from '@/components/Layout/Footer';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Package, DollarSign, TrendingUp, Edit, Eye, AlertCircle, CheckCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Plus, Package, DollarSign, TrendingUp, Edit, Eye, AlertCircle, CheckCircle, ShoppingCart, BarChart3, Settings, CreditCard } from 'lucide-react';
 
 const SellerDashboard = () => {
   const { user } = useAuth();
@@ -19,7 +21,7 @@ const SellerDashboard = () => {
       stock: 12,
       sales: 8,
       status: "active",
-      image: "/api/placeholder/100/100",
+      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDEuP2jaxW-4doOKMOeSzU81-oqhTUUrABfv3OnLUY7DP8XCeySupsCIrkGLkf8lTZvCbWeHjjUoFpgAD6UuakL6TmxaPItdItP_4v-GXV8-ht2VHazbirtOjPrU5sayYuGsDk5555ngMjo-Wp8qlo6dlPDJkxqSnD6nXiuh_jDrpVMOKidedLRWj6v_VIcYbLTrcqQ4gupup8I61Bq1HPLTVV5AAuIn1qtJLwsusK8br9jqTFAFZ1-dn_0GBH4Ul4DXodkVi7kp0M",
       createdAt: "2024-01-01"
     },
     {
@@ -29,7 +31,7 @@ const SellerDashboard = () => {
       stock: 5,
       sales: 15,
       status: "active",
-      image: "/api/placeholder/100/100",
+      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBiYNoSLNic5jl6-U9odJs0DHlb_DH6iu8C2Yx_ACDbF1SOcf08gCkUzAMmYnAm3oIpjRYjVVKnyna3kH-qzh4yMeaWUq9IkFoPpZaxelHg4sgsEqfvOlDde3_nPTIHM_OSmzozA4ONRlu-LqoeBdSjz4RNNiaOVp8Jj45f0tApnYhQHnwBbFEP8ojXsT-SsYoRramlMrGmFxVY5Io5PMJB1PjxbuL8kZrs_9pJPuTwWMPS8TZF_68js_Wla-KU0n4hb56FiV5Gi0M",
       createdAt: "2023-12-15"
     },
     {
@@ -39,7 +41,7 @@ const SellerDashboard = () => {
       stock: 0,
       sales: 3,
       status: "out_of_stock",
-      image: "/api/placeholder/100/100",
+      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC_ZHNSMDAW1me7RnXk1CSqUZgPLHOwfxYxyO3ETpijuoydbc9yPM0Ixu49EgZ2pzIFe0-ZB6u1SEhOeO9k3xkvcQsqx9ECts7u6jpOJHDiZv79sPd6Y33aTZTo4kuQ1xjIx28_YpdiRKJrhtUZr12KRIfl1xy51eW5KSVpAUcMqaawccL0Qqfkm9KVNc-NTb4MQX5YEk4vP_4jGhoaENwogHpZ2p8V3VzSFauAtoKyh2EHut7OswfpLM9XewQrm3H7I2tIOiJUBBo",
       createdAt: "2023-11-20"
     }
   ]);
@@ -173,6 +175,72 @@ const SellerDashboard = () => {
           </Card>
         </div>
 
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Acciones Rápidas</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            <Link to="/products/manage" className="group">
+              <Card className="hover:shadow-md transition-all duration-200 cursor-pointer group-hover:scale-105">
+                <CardContent className="p-4 text-center">
+                  <Package className="h-8 w-8 mx-auto mb-2 text-primary group-hover:text-primary/80" />
+                  <h3 className="font-medium text-sm">Gestionar Productos</h3>
+                  <p className="text-xs text-muted-foreground">Crear y editar</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/orders/manage" className="group">
+              <Card className="hover:shadow-md transition-all duration-200 cursor-pointer group-hover:scale-105">
+                <CardContent className="p-4 text-center">
+                  <ShoppingCart className="h-8 w-8 mx-auto mb-2 text-primary group-hover:text-primary/80" />
+                  <h3 className="font-medium text-sm">Gestionar Pedidos</h3>
+                  <p className="text-xs text-muted-foreground">Ver y actualizar</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/financial-dashboard" className="group">
+              <Card className="hover:shadow-md transition-all duration-200 cursor-pointer group-hover:scale-105">
+                <CardContent className="p-4 text-center">
+                  <BarChart3 className="h-8 w-8 mx-auto mb-2 text-primary group-hover:text-primary/80" />
+                  <h3 className="font-medium text-sm">Dashboard Financiero</h3>
+                  <p className="text-xs text-muted-foreground">Ventas y comisiones</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/orders/tracking" className="group">
+              <Card className="hover:shadow-md transition-all duration-200 cursor-pointer group-hover:scale-105">
+                <CardContent className="p-4 text-center">
+                  <CreditCard className="h-8 w-8 mx-auto mb-2 text-primary group-hover:text-primary/80" />
+                  <h3 className="font-medium text-sm">Seguimiento Pedidos</h3>
+                  <p className="text-xs text-muted-foreground">Tracking avanzado</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/reviews" className="group">
+              <Card className="hover:shadow-md transition-all duration-200 cursor-pointer group-hover:scale-105">
+                <CardContent className="p-4 text-center">
+                  <TrendingUp className="h-8 w-8 mx-auto mb-2 text-primary group-hover:text-primary/80" />
+                  <h3 className="font-medium text-sm">Gestionar Reseñas</h3>
+                  <p className="text-xs text-muted-foreground">Ver y responder</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/notifications" className="group">
+              <Card className="hover:shadow-md transition-all duration-200 cursor-pointer group-hover:scale-105">
+                <CardContent className="p-4 text-center">
+                  <AlertCircle className="h-8 w-8 mx-auto mb-2 text-primary group-hover:text-primary/80" />
+                  <h3 className="font-medium text-sm">Notificaciones</h3>
+                  <p className="text-xs text-muted-foreground">Centro de alertas</p>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </div>
+
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Products Management */}
           <div className="lg:col-span-2">
@@ -188,46 +256,80 @@ const SellerDashboard = () => {
                       Gestiona tu inventario y productos
                     </CardDescription>
                   </div>
-                  <Button 
-                    onClick={() => toast({ title: "Crear Producto", description: "Función disponible próximamente" })}
-                    disabled={!user?.isApproved}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nuevo Producto
-                  </Button>
+                  <Link to="/products/manage">
+                    <Button 
+                      disabled={!user?.isApproved}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Nuevo Producto
+                    </Button>
+                  </Link>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
                   {products.map((product) => (
-                    <div key={product.id} className="flex items-center gap-4 p-4 border rounded-lg">
-                      <img 
-                        src={product.image} 
-                        alt={product.name}
-                        className="w-16 h-16 rounded-lg object-cover"
-                      />
-                      <div className="flex-1">
-                        <h3 className="font-semibold">{product.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Stock: {product.stock} | Vendidos: {product.sales}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Creado: {new Date(product.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold">${product.price.toLocaleString()}</p>
-                        <Badge className={getStatusColor(product.status)}>
-                          {getStatusText(product.status)}
-                        </Badge>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                    <div key={product.id} className="group cursor-pointer">
+                      <div className="bg-background rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300">
+                        {/* Image Container */}
+                        <div className="relative">
+                          <img 
+                            src={product.image} 
+                            alt={product.name}
+                            className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                          
+                          {/* Status Badge */}
+                          <div className="absolute top-2 left-2">
+                            <Badge className={getStatusColor(product.status)}>
+                              {getStatusText(product.status)}
+                            </Badge>
+                          </div>
+                          
+                          {/* Hover Overlay */}
+                          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm"
+                                className="bg-primary text-white rounded-lg px-3 py-1 hover:bg-primary/90 font-medium"
+                              >
+                                <Edit className="h-4 w-4 mr-1" />
+                                Editar
+                              </Button>
+                              <Button 
+                                size="sm"
+                                variant="secondary"
+                                className="bg-white text-foreground rounded-lg px-3 py-1 hover:bg-white/90 font-medium"
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                Ver
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Card Body */}
+                        <div className="p-4 bg-white">
+                          <h3 className="text-lg font-semibold text-foreground mb-1 hover:text-primary transition-colors">
+                            {product.name}
+                          </h3>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            Stock: {product.stock} | Vendidos: {product.sales}
+                          </p>
+                          <p className="text-xs text-muted-foreground mb-4">
+                            Creado: {new Date(product.createdAt).toLocaleDateString()}
+                          </p>
+                          
+                          <div className="flex items-center justify-between">
+                            <p className="text-primary font-bold text-lg">
+                              ${product.price.toLocaleString()}
+                            </p>
+                            
+                            <div className="text-sm text-muted-foreground">
+                              ID: {product.id}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -284,6 +386,8 @@ const SellerDashboard = () => {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

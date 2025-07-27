@@ -5,8 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuth } from '@/contexts/AuthContext';
 import { Header } from '@/components/Layout/Header';
+import { Footer } from '@/components/Layout/Footer';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Users, Package, DollarSign, TrendingUp, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { CheckCircle, XCircle, Users, Package, DollarSign, TrendingUp, Eye, BarChart3, Settings, UserCheck, FileText, MessageSquare, Shield, Cog, Activity, CreditCard } from 'lucide-react';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -82,10 +84,10 @@ const AdminDashboard = () => {
 
         {/* Stats Overview */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <Card>
+          <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Usuarios Totales</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <Users className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalUsers}</div>
@@ -93,10 +95,10 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Vendedores Activos</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
+              <Package className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.activeSellers}</div>
@@ -107,10 +109,10 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Productos</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <TrendingUp className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalProducts}</div>
@@ -118,10 +120,10 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Ingresos del Mes</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <DollarSign className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">${stats.monthlyRevenue.toLocaleString()}</div>
@@ -129,10 +131,10 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Comisiones (15%)</CardTitle>
-              <DollarSign className="h-4 w-4 text-choco-gold" />
+              <DollarSign className="h-4 w-4 text-choco-gold group-hover:text-primary transition-colors" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-choco-earth">${stats.commission.toLocaleString()}</div>
@@ -141,8 +143,96 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Herramientas de Administración</h2>
+          <div className="grid md:grid-cols-4 gap-4">
+            <Link to="/admin/users">
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+                <CardContent className="p-4 text-center">
+                  <UserCheck className="h-8 w-8 mx-auto mb-2 text-primary group-hover:scale-110 transition-transform" />
+                  <h3 className="font-medium">Gestionar Usuarios</h3>
+                  <p className="text-xs text-muted-foreground">Aprobar y administrar usuarios</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/admin/products">
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+                <CardContent className="p-4 text-center">
+                  <Package className="h-8 w-8 mx-auto mb-2 text-primary group-hover:scale-110 transition-transform" />
+                  <h3 className="font-medium">Supervisar Productos</h3>
+                  <p className="text-xs text-muted-foreground">Revisar y moderar productos</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/admin/reports">
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+                <CardContent className="p-4 text-center">
+                  <BarChart3 className="h-8 w-8 mx-auto mb-2 text-primary group-hover:scale-110 transition-transform" />
+                  <h3 className="font-medium">Reportes Avanzados</h3>
+                  <p className="text-xs text-muted-foreground">Análisis y estadísticas</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/admin/content">
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+                <CardContent className="p-4 text-center">
+                  <FileText className="h-8 w-8 mx-auto mb-2 text-primary group-hover:scale-110 transition-transform" />
+                  <h3 className="font-medium">Gestión de Contenido</h3>
+                  <p className="text-xs text-muted-foreground">Páginas y banners</p>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-4 mt-4">
+            <Link to="/admin/support">
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+                <CardContent className="p-4 text-center">
+                  <MessageSquare className="h-8 w-8 mx-auto mb-2 text-primary group-hover:scale-110 transition-transform" />
+                  <h3 className="font-medium">Centro de Soporte</h3>
+                  <p className="text-xs text-muted-foreground">Tickets y FAQ</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/admin/config">
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+                <CardContent className="p-4 text-center">
+                  <Cog className="h-8 w-8 mx-auto mb-2 text-primary group-hover:scale-110 transition-transform" />
+                  <h3 className="font-medium">Configuración</h3>
+                  <p className="text-xs text-muted-foreground">Ajustes de plataforma</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/admin/audit">
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+                <CardContent className="p-4 text-center">
+                  <Shield className="h-8 w-8 mx-auto mb-2 text-primary group-hover:scale-110 transition-transform" />
+                  <h3 className="font-medium">Sistema de Auditoría</h3>
+                  <p className="text-xs text-muted-foreground">Logs y seguridad</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/admin/payments">
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+                <CardContent className="p-4 text-center">
+                  <CreditCard className="h-8 w-8 mx-auto mb-2 text-primary group-hover:scale-110 transition-transform" />
+                  <h3 className="font-medium">Gestión de Pagos</h3>
+                  <p className="text-xs text-muted-foreground">Pagos y comisiones</p>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </div>
+
         {/* Pending Seller Approvals */}
-        <Card className="mb-8">
+        <Card className="mb-8 hover:shadow-lg transition-all duration-300">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
@@ -221,10 +311,12 @@ const AdminDashboard = () => {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Button className="h-20 flex flex-col">
-            <Users className="h-6 w-6 mb-2" />
-            Gestionar Usuarios
-          </Button>
+          <Link to="/admin/users">
+            <Button className="h-20 flex flex-col w-full">
+              <Users className="h-6 w-6 mb-2" />
+              Gestionar Usuarios
+            </Button>
+          </Link>
           <Button variant="outline" className="h-20 flex flex-col">
             <Package className="h-6 w-6 mb-2" />
             Revisar Productos
@@ -239,6 +331,8 @@ const AdminDashboard = () => {
           </Button>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

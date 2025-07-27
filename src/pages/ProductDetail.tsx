@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Header } from '@/components/Layout/Header';
+import { Footer } from '@/components/Layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
@@ -39,10 +40,10 @@ const ProductDetail = () => {
     price: 45000,
     originalPrice: 60000,
     images: [
-      "/api/placeholder/600/600",
-      "/api/placeholder/600/600",
-      "/api/placeholder/600/600",
-      "/api/placeholder/600/600"
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuDEuP2jaxW-4doOKMOeSzU81-oqhTUUrABfv3OnLUY7DP8XCeySupsCIrkGLkf8lTZvCbWeHjjUoFpgAD6UuakL6TmxaPItdItP_4v-GXV8-ht2VHazbirtOjPrU5sayYuGsDk5555ngMjo-Wp8qlo6dlPDJkxqSnD6nXiuh_jDrpVMOKidedLRWj6v_VIcYbLTrcqQ4gupup8I61Bq1HPLTVV5AAuIn1qtJLwsusK8br9jqTFAFZ1-dn_0GBH4Ul4DXodkVi7kp0M",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBiYNoSLNic5jl6-U9odJs0DHlb_DH6iu8C2Yx_ACDbF1SOcf08gCkUzAMmYnAm3oIpjRYjVVKnyna3kH-qzh4yMeaWUq9IkFoPpZaxelHg4sgsEqfvOlDde3_nPTIHM_OSmzozA4ONRlu-LqoeBdSjz4RNNiaOVp8Jj45f0tApnYhQHnwBbFEP8ojXsT-SsYoRramlMrGmFxVY5Io5PMJB1PjxbuL8kZrs_9pJPuTwWMPS8TZF_68js_Wla-KU0n4hb56FiV5Gi0M",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuC_ZHNSMDAW1me7RnXk1CSqUZgPLHOwfxYxyO3ETpijuoydbc9yPM0Ixu49EgZ2pzIFe0-ZB6u1SEhOeO9k3xkvcQsqx9ECts7u6jpOJHDiZv79sPd6Y33aTZTo4kuQ1xjIx28_YpdiRKJrhtUZr12KRIfl1xy51eW5KSVpAUcMqaawccL0Qqfkm9KVNc-NTb4MQX5YEk4vP_4jGhoaENwogHpZ2p8V3VzSFauAtoKyh2EHut7OswfpLM9XewQrm3H7I2tIOiJUBBo",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuAHWGnRxuwPHhV32CFYKPnOtU3Um5pyhunvhsR71zsx7R2e87v7SgqKDDzva14nd8Z-0ZxMWQmfVdMgA-VJEYm2oDWYCTl7-nvrNYq3ZqTG3ZSCnfAcX3pT5KtA5YNuMS9MnjaGn8qIlv7FEfGagD4Yn4L1jp3DGdGoTG7gnTxsIvYN0W8n3qebetcFxPam2pTobxLCEpACHLYNNdMi-CgbOzbimJAo1aMIIbxwBZHiAr03iHaFBcqPQxyBQS_s41dI6_tM76Nyf2s"
     ],
     seller: {
       name: "María Mosquera",
@@ -102,7 +103,7 @@ Cada cesta es única debido a la naturaleza artesanal del proceso. Las pequeñas
         description: "Debes iniciar sesión para agregar productos al carrito",
         variant: "destructive"
       });
-      navigate('/login');
+      navigate('/auth');
       return;
     }
 
@@ -427,6 +428,7 @@ Cada cesta es única debido a la naturaleza artesanal del proceso. Las pequeñas
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { Header } from '@/components/Layout/Header';
+import { Footer } from '@/components/Layout/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Users, Award, Leaf } from 'lucide-react';
@@ -171,32 +172,9 @@ const About = () => {
             ))}
           </div>
         </div>
-
-        {/* Contact Section */}
-        <Card className="bg-gradient-to-r from-choco-earth to-choco-wood text-white">
-          <CardContent className="p-12 text-center">
-            <h2 className="text-3xl font-bold mb-4">¿Quieres Conocer Más?</h2>
-            <p className="text-xl mb-8 text-white/90">
-              Estamos aquí para responder tus preguntas y ayudarte a ser parte 
-              de nuestra comunidad de artesanos y compradores conscientes.
-            </p>
-            <div className="grid md:grid-cols-3 gap-8 text-center">
-              <div>
-                <h3 className="font-semibold mb-2">Correo</h3>
-                <p className="text-white/80">info@tesoroschoco.com</p>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">Teléfono</h3>
-                <p className="text-white/80">+57 314 567 8900</p>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">WhatsApp</h3>
-                <p className="text-white/80">+57 300 123 4567</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
+      
+      <Footer />
     </div>
   );
 };
