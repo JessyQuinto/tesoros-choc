@@ -48,12 +48,11 @@ export function AuthPage() {
   }, [activeTab, clearError]);
 
   const onLogin = async (values: z.infer<typeof loginSchema>) => {
-    await login(values);
+    await login(values.email, values.password);
   };
 
   const onRegister = async (values: z.infer<typeof registerSchema>) => {
-    // El rol por defecto es 'buyer' ya que el usuario definirá su rol real en el siguiente paso.
-    await register({ ...values, role: 'buyer' });
+    await register(values.email, values.password, values.name, 'buyer');
   };
   
   const onGoogleSignIn = async () => {

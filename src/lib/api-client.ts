@@ -11,19 +11,19 @@ const getAuthToken = async (): Promise<string> => {
 
 export const apiClient = {
   async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>('GET', endpoint);
+    return this.request('GET', endpoint) as Promise<T>;
   },
 
   async post<T>(endpoint: string, body: any): Promise<T> {
-    return this.request<T>('POST', endpoint, body);
+    return this.request('POST', endpoint, body) as Promise<T>;
   },
 
   async put<T>(endpoint: string, body: any): Promise<T> {
-    return this.request<T>('PUT', endpoint, body);
+    return this.request('PUT', endpoint, body) as Promise<T>;
   },
 
   async delete(endpoint: string): Promise<void> {
-    await this.request<void>('DELETE', endpoint);
+    await this.request('DELETE', endpoint);
   },
 
   async request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', endpoint: string, body: any = null): Promise<T> {

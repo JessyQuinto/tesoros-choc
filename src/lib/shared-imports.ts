@@ -50,5 +50,17 @@ export {
   CheckCircle,
   XCircle,
   AlertCircle,
-  Loader2
+  Loader2,
+  UserCheck,
+  UserX,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Clock,
+  Users,
+  MoreHorizontal,
+  Download,
+  Upload,
+  Info
 } from 'lucide-react';

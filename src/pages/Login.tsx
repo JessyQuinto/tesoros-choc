@@ -35,12 +35,6 @@ const Login = () => {
         description: "Has iniciado sesión correctamente"
       });
       navigate('/');
-    } else {
-      toast({
-        title: "Error",
-        description: "Credenciales incorrectas",
-        variant: "destructive"
-      });
     }
   };
 

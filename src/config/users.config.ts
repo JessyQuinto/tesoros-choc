@@ -1,4 +1,4 @@
-import { UserRole } from '@/contexts/AuthContext';
+export type UserRole = 'buyer' | 'seller' | 'admin' | 'pending_vendor';
 
 export interface PredefinedAccount {
   email: string;

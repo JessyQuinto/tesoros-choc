@@ -1,108 +1,129 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { adminService } from "@/services/AdminService";
-import { getColumns, UserManagementViewModel } from "./AdminUserManagement.columns";
-import { DataTable } from "@/components/shared/DataTable";
-import { useToast } from "@/hooks/use-toast";
-import { useErrorHandler } from "@/hooks/useErrorHandler";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useState } from "react";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { DataTable, Column } from '@/components/shared/DataTable';
+import { UserRole } from '@/contexts/AuthContext';
+
+interface UserManagementViewModel {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  isApproved: boolean;
+  createdAt: string;
+}
 
 export function AdminUserManagement() {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-  const { handleError } = useErrorHandler();
-  const [dialogState, setDialogState] = useState({ isOpen: false, userId: '' });
-
-  const { data: users, isLoading, error } = useQuery<UserManagementViewModel[], Error>({
-    queryKey: ["adminUsers"],
-    queryFn: () => adminService.getAllUsers(),
-  });
-
-  const mutationOptions = {
-    onSuccess: (message: string) => {
-      toast({ title: "Éxito", description: message });
-      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+  // Mock data para demostración
+  const [mockUsers] = useState<UserManagementViewModel[]>([
+    {
+      id: '1',
+      name: 'Juan Pérez',
+      email: 'juan@example.com',
+      role: 'buyer',
+      isApproved: true,
+      createdAt: '2024-01-15'
     },
-    onError: (error: Error) => {
-      handleError(error, "Operación de administrador fallida");
+    {
+      id: '2',
+      name: 'María García',
+      email: 'maria@example.com',
+      role: 'pending_vendor',
+      isApproved: false,
+      createdAt: '2024-01-20'
     },
+    {
+      id: '3',
+      name: 'Carlos Rodriguez',
+      email: 'carlos@example.com',
+      role: 'seller',
+      isApproved: true,
+      createdAt: '2024-01-10'
+    }
+  ]);
+
+  const updateUserStatus = async (userId: string, updates: { role?: UserRole; isApproved?: boolean }) => {
+    console.log('Actualizando usuario:', userId, updates);
+    // Aquí se conectaría con la API real
   };
 
-  const updateUserMutation = useMutation({
-    mutationFn: ({ userId, data }: { userId: string; data: { role?: string; isApproved?: boolean } }) =>
-      adminService.updateUser(userId, data).then(() => "Usuario actualizado correctamente."),
-    ...mutationOptions,
-  });
+  const getRoleVariant = (role: UserRole) => {
+    switch (role) {
+      case 'admin': return 'destructive';
+      case 'seller': return 'default';
+      case 'buyer': return 'secondary';
+      case 'pending_vendor': return 'outline';
+      default: return 'secondary';
+    }
+  };
 
-  const deleteUserMutation = useMutation({
-    mutationFn: (userId: string) => 
-        adminService.deleteUser(userId).then(() => "Usuario eliminado correctamente."),
-    ...mutationOptions,
-    onSettled: () => {
-      setDialogState({ isOpen: false, userId: '' });
+  const columns: Column<UserManagementViewModel>[] = [
+    {
+      key: 'name',
+      title: 'Nombre',
     },
-  });
-
-  const onApprove = (userId: string) => {
-    updateUserMutation.mutate({ userId, data: { isApproved: true } });
-  };
-  
-  const onUpdateRole = (userId: string, newRole: 'buyer' | 'seller' | 'admin') => {
-    // Para simplificar, asumimos que solo se puede cambiar entre buyer y seller.
-    const targetRole = newRole === 'buyer' ? 'seller' : 'buyer';
-    updateUserMutation.mutate({ userId, data: { role: targetRole } });
-  };
-  
-  const openDeleteDialog = (userId: string) => {
-    setDialogState({ isOpen: true, userId });
-  };
-  
-  const columns = getColumns(onApprove, onUpdateRole, openDeleteDialog);
-
-  if (isLoading) {
-    return <div className="flex justify-center items-center h-64"><LoadingSpinner /></div>;
-  }
-
-  if (error) {
-    // El hook useErrorHandler ya podría haber manejado esto, pero es una buena práctica tener un fallback.
-    return <div className="text-red-500 text-center p-4">Error al cargar usuarios: {error.message}</div>;
-  }
+    {
+      key: 'email',
+      title: 'Email',
+    },
+    {
+      key: 'role',
+      title: 'Rol',
+      render: (value) => (
+        <Badge variant={getRoleVariant(value as UserRole)}>
+          {value === 'pending_vendor' ? 'Vendedor Pendiente' : value}
+        </Badge>
+      ),
+    },
+    {
+      key: 'isApproved',
+      title: 'Estado',
+      render: (value) => (
+        <Badge variant={value ? 'default' : 'secondary'}>
+          {value ? 'Aprobado' : 'Pendiente'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'id',
+      title: 'Acciones',
+      render: (_, row) => (
+        <div className="flex space-x-2">
+          {row.role === 'pending_vendor' && (
+            <>
+              <Button
+                size="sm"
+                variant="default"
+                onClick={() => updateUserStatus(row.id, { role: 'seller', isApproved: true })}
+              >
+                Aprobar Vendedor
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => updateUserStatus(row.id, { isApproved: false })}
+              >
+                Rechazar
+              </Button>
+            </>
+          )}
+          {row.role !== 'pending_vendor' && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => updateUserStatus(row.id, { isApproved: !row.isApproved })}
+            >
+              {row.isApproved ? 'Suspender' : 'Aprobar'}
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-6">Gestión de Usuarios</h1>
-      <DataTable columns={columns} data={users || []} />
-      
-      <AlertDialog open={dialogState.isOpen} onOpenChange={(isOpen) => setDialogState(prev => ({ ...prev, isOpen }))}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción no se puede deshacer. Esto eliminará permanentemente al usuario
-              y todos sus datos asociados del sistema.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => deleteUserMutation.mutate(dialogState.userId)}
-              disabled={deleteUserMutation.isPending}
-            >
-              {deleteUserMutation.isPending ? "Eliminando..." : "Confirmar Eliminación"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DataTable title="Gestión de Usuarios" columns={columns} data={mockUsers} />
     </div>
   );
 }

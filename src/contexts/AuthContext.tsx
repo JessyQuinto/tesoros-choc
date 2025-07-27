@@ -1,16 +1,43 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { authService, AuthUser, RegisterData, LoginData, UpdateProfileData } from '../services/auth.service';
-import { userRepository, UserProfile } from '../services/UserRepository';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  onAuthStateChanged,
+  User as FirebaseUser,
+  sendPasswordResetEmail,
+  updateProfile
+} from 'firebase/auth';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { auth, db } from '../config/firebase';
+import { useNavigate } from 'react-router-dom';
+
+export type UserRole = 'buyer' | 'seller' | 'admin' | 'pending_vendor';
+
+export interface UserProfile {
+  id: string;
+  firebaseUid: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  isApproved: boolean;
+  avatar: string | null;
+  needsRoleSelection: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface AuthContextType {
   user: UserProfile | null;
-  authUser: AuthUser | null;
-  login: (data: LoginData) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  firebaseUser: FirebaseUser | null;
+  login: (email: string, password: string) => Promise<boolean>;
+  register: (email: string, password: string, name: string, role: UserRole) => Promise<boolean>;
+  loginWithGoogle: () => Promise<boolean>;
   logout: () => Promise<void>;
-  updateUserProfile: (data: UpdateProfileData & { role?: 'buyer' | 'seller', needsRoleSelection?: boolean }) => Promise<void>;
+  updateUser: (data: Partial<UserProfile>) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   isLoading: boolean;
   error: string | null;
   clearError: () => void;
@@ -29,50 +56,43 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [needsRoleSelection, setNeedsRoleSelection] = useState(false);
   
   const navigate = useNavigate();
-  const location = useLocation();
 
   const clearError = useCallback(() => setError(null), []);
 
-  const fetchUserProfile = useCallback(async () => {
+  // Fetch user profile from Firestore
+  const fetchUserProfile = useCallback(async (firebaseUser: FirebaseUser) => {
     try {
-      const userProfile = await userRepository.getUserProfile();
-      setUser(userProfile);
-      if (userProfile.needsRoleSelection) {
-        setNeedsRoleSelection(true);
-        navigate('/select-role', { replace: true });
+      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data() as UserProfile;
+        setUser(userData);
+        setNeedsRoleSelection(userData.needsRoleSelection || false);
+        return userData;
       } else {
-        setNeedsRoleSelection(false);
-      }
-      return userProfile;
-    } catch (apiError: any) {
-      if (apiError.message.includes('Usuario no encontrado')) {
+        // User doesn't exist in Firestore, needs role selection
         setNeedsRoleSelection(true);
         setUser(null);
-        navigate('/select-role', { replace: true });
-      } else {
-        setError('No se pudo cargar el perfil del usuario.');
-        setUser(null);
+        return null;
       }
-      throw apiError;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      setError('Error al cargar el perfil del usuario');
+      return null;
     }
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     setIsLoading(true);
-    const unsubscribe = authService.onAuthStateChanged(async (currentAuthUser) => {
-      setAuthUser(currentAuthUser);
-      if (currentAuthUser) {
-        try {
-          await fetchUserProfile();
-        } catch (e) {
-            // Error ya manejado en fetchUserProfile
-        }
+    const unsubscribe = onAuthStateChanged(auth, async (currentFirebaseUser) => {
+      setFirebaseUser(currentFirebaseUser);
+      if (currentFirebaseUser) {
+        await fetchUserProfile(currentFirebaseUser);
       } else {
         setUser(null);
         setNeedsRoleSelection(false);
@@ -82,53 +102,132 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, [fetchUserProfile]);
 
-  const performAuthAction = async (action: () => Promise<any>, successMessage?: string) => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     clearError();
     try {
-      await action();
-      // El listener onAuthStateChanged se encargará del resto
+      await signInWithEmailAndPassword(auth, email, password);
+      return true;
     } catch (err: any) {
-      setError(err.message || 'Ocurrió un error desconocido.');
-      setIsLoading(false); // Detener la carga en caso de error
-      throw err; // Relanzar para que el componente que llama pueda manejarlo si es necesario
+      setError(getErrorMessage(err.code));
+      setIsLoading(false);
+      return false;
     }
   };
 
-  const login = (data: LoginData) => performAuthAction(() => authService.login(data));
-  const register = (data: RegisterData) => performAuthAction(() => authService.register(data));
-  const loginWithGoogle = () => performAuthAction(() => authService.loginWithGoogle());
-  
+  const register = async (email: string, password: string, name: string, role: UserRole): Promise<boolean> => {
+    setIsLoading(true);
+    clearError();
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
+      
+      await updateProfile(firebaseUser, { displayName: name });
+      
+      // Create user document in Firestore
+      const userProfile: UserProfile = {
+        id: firebaseUser.uid,
+        firebaseUid: firebaseUser.uid,
+        email: firebaseUser.email || '',
+        name: name,
+        role: role === 'seller' ? 'pending_vendor' : role, // Sellers need approval
+        isApproved: role === 'buyer' || role === 'admin',
+        avatar: firebaseUser.photoURL,
+        needsRoleSelection: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      await setDoc(doc(db, 'users', firebaseUser.uid), userProfile);
+      return true;
+    } catch (err: any) {
+      setError(getErrorMessage(err.code));
+      setIsLoading(false);
+      return false;
+    }
+  };
+
+  const loginWithGoogle = async (): Promise<boolean> => {
+    setIsLoading(true);
+    clearError();
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      return true;
+    } catch (err: any) {
+      setError(getErrorMessage(err.code));
+      setIsLoading(false);
+      return false;
+    }
+  };
+
   const logout = async () => {
     setIsLoading(true);
     try {
-        await authService.logout();
-        setUser(null);
-        setAuthUser(null);
-        setNeedsRoleSelection(false);
-        navigate('/auth');
-    } catch(err: any) {
-        setError(err.message);
+      await signOut(auth);
+      setUser(null);
+      setFirebaseUser(null);
+      setNeedsRoleSelection(false);
+      navigate('/login');
+    } catch (err: any) {
+      setError(err.message);
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const updateUserProfile = async (data: UpdateProfileData & { role?: 'buyer' | 'seller', needsRoleSelection?: boolean }) => {
-    await performAuthAction(async () => {
-        await userRepository.updateUserProfile(data);
-        await fetchUserProfile(); // Refrescar perfil
-    });
+  const updateUser = async (data: Partial<UserProfile>) => {
+    if (!firebaseUser) return;
+    
+    setIsLoading(true);
+    try {
+      // Update Firestore document
+      await updateDoc(doc(db, 'users', firebaseUser.uid), {
+        ...data,
+        updatedAt: new Date().toISOString()
+      });
+      
+      // Update local state
+      setUser(prev => prev ? { ...prev, ...data } : null);
+      setNeedsRoleSelection(false);
+    } catch (err: any) {
+      setError('Error al actualizar el perfil');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } catch (err: any) {
+      setError(getErrorMessage(err.code));
+      throw err;
+    }
+  };
+
+  const getErrorMessage = (errorCode: string): string => {
+    const errorMessages: Record<string, string> = {
+      'auth/email-already-in-use': 'Este email ya está registrado.',
+      'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
+      'auth/invalid-email': 'El formato del email es inválido.',
+      'auth/user-not-found': 'No se encontró un usuario con ese email.',
+      'auth/wrong-password': 'La contraseña es incorrecta.',
+      'auth/invalid-credential': 'Las credenciales son inválidas.',
+      'auth/too-many-requests': 'Demasiados intentos. Intenta de nuevo más tarde.',
+    };
+    return errorMessages[errorCode] || 'Ocurrió un error durante la autenticación.';
   };
 
   const value: AuthContextType = {
     user,
-    authUser,
+    firebaseUser,
     login,
     register,
     loginWithGoogle,
     logout,
-    updateUserProfile,
+    updateUser,
+    resetPassword,
     isLoading,
     error,
     clearError,

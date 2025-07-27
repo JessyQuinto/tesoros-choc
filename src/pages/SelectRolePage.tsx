@@ -11,7 +11,7 @@ type Role = 'buyer' | 'seller';
 
 export function SelectRolePage() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const { updateUserProfile, isLoading, authUser } = useAuth();
+  const { updateUser, isLoading, firebaseUser } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -25,7 +25,7 @@ export function SelectRolePage() {
     }
 
     try {
-      await updateUserProfile({ role: selectedRole, needsRoleSelection: false });
+      await updateUser({ role: selectedRole, needsRoleSelection: false });
       toast({
         title: '¡Rol seleccionado!',
         description: `Tu perfil como ${selectedRole === 'buyer' ? 'comprador' : 'vendedor'} ha sido configurado.`,
@@ -44,7 +44,7 @@ export function SelectRolePage() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-          ¡Bienvenido, {authUser?.displayName || 'nuevo usuario'}!
+          ¡Bienvenido, {firebaseUser?.displayName || 'nuevo usuario'}!
         </h1>
         <p className="mt-3 text-lg text-gray-600 dark:text-gray-300">
           Para personalizar tu experiencia, elige cómo quieres empezar.
