@@ -9,6 +9,7 @@ import {
 import { auth } from '@/config/firebase';
 import { apiClient } from '@/lib/api-client';
 import { UserProfile, UserRole } from '@/types/user.types';
+import EmailService from './EmailService';
 
 export interface RegisterData {
   name: string;
@@ -54,9 +55,15 @@ export class AuthService {
       
       console.log('✅ Usuario creado en Auth:', user.uid);
 
-      // 2. Enviar verificación de email
-      await sendEmailVerification(user);
-      console.log('📧 Email de verificación enviado');
+      // 2. Enviar verificación de email con plantilla personalizada
+      try {
+        await EmailService.sendCustomEmailVerification();
+        console.log('📧 Email de verificación enviado con plantilla personalizada');
+      } catch (emailError) {
+        console.warn('⚠️ Error enviando email personalizado, usando predeterminado');
+        await sendEmailVerification(user);
+        console.log('📧 Email de verificación enviado (predeterminado)');
+      }
 
       // 3. El backend se encargará de crear el perfil cuando se verifique el token
       // por primera vez, usando la información de Firebase Auth
@@ -93,7 +100,11 @@ export class AuthService {
 
       // 2. Verificar si el email está verificado
       if (!user.emailVerified) {
-        await sendEmailVerification(user);
+        try {
+          await EmailService.sendCustomEmailVerification();
+        } catch (emailError) {
+          await sendEmailVerification(user);
+        }
         throw new Error('Por favor verifica tu email. Hemos reenviado el correo de verificación.');
       }
 
@@ -169,7 +180,12 @@ export class AuthService {
 }
 
 export const sendPasswordReset = async (email: string): Promise<void> => {
-  await sendPasswordResetEmail(auth, email);
+  try {
+    await EmailService.sendCustomPasswordReset(email);
+  } catch (error) {
+    // Fallback al método predeterminado de Firebase
+    await sendPasswordResetEmail(auth, email);
+  }
 };
 
 export const authService = new AuthService();

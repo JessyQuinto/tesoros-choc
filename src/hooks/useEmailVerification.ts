@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { auth } from '@/config/firebase';
 import { reload } from 'firebase/auth';
+import EmailService from '@/services/EmailService';
 
 interface UseEmailVerificationOptions {
-  /** Duración total de la verificación automática en segundos (default: 300 = 5 minutos) */
+  /** Duración total de la verificación automática en segundos (default: 120 = 2 minutos) */
   totalDuration?: number;
   /** Intervalo entre verificaciones en milisegundos (default: 5000 = 5 segundos) */
   checkInterval?: number;
@@ -11,6 +12,13 @@ interface UseEmailVerificationOptions {
   onVerificationSuccess?: () => void;
   /** Callback ejecutado cuando el tiempo expira */
   onTimeout?: () => void;
+  /** Datos del usuario para el correo de bienvenida */
+  userData?: {
+    name: string;
+    email: string;
+    role: 'buyer' | 'seller';
+    isApproved?: boolean;
+  };
 }
 
 interface UseEmailVerificationReturn {
@@ -36,10 +44,11 @@ export const useEmailVerification = (
   options: UseEmailVerificationOptions = {}
 ): UseEmailVerificationReturn => {
   const {
-    totalDuration = 300, // 5 minutos
+    totalDuration = 120, // 2 minutos
     checkInterval = 5000, // 5 segundos
     onVerificationSuccess,
-    onTimeout
+    onTimeout,
+    userData
   } = options;
 
   const [timeLeft, setTimeLeft] = useState(totalDuration);
@@ -63,6 +72,22 @@ export const useEmailVerification = (
         if (checkIntervalId) clearInterval(checkIntervalId);
         if (countdownIntervalId) clearInterval(countdownIntervalId);
         
+        // Enviar correo de bienvenida si se proporcionaron datos del usuario
+        if (userData) {
+          try {
+            await EmailService.sendWelcomeEmail({
+              userName: userData.name,
+              userEmail: userData.email,
+              userRole: userData.role,
+              isApproved: userData.isApproved
+            });
+            console.log('✅ Correo de bienvenida enviado exitosamente');
+          } catch (error) {
+            console.warn('⚠️ No se pudo enviar el correo de bienvenida:', error);
+            // No interrumpimos el flujo por este error
+          }
+        }
+        
         // Ejecutar callback de éxito
         onVerificationSuccess?.();
         
@@ -73,7 +98,7 @@ export const useEmailVerification = (
       console.error('Error al verificar email:', error);
       return false;
     }
-  }, [checkIntervalId, countdownIntervalId, isVerified, onVerificationSuccess]);
+  }, [checkIntervalId, countdownIntervalId, isVerified, onVerificationSuccess, userData]);
 
   // Función para limpiar intervalos
   const clearIntervals = useCallback(() => {
