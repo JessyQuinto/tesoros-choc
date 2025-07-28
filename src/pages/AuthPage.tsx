@@ -57,7 +57,7 @@ export function AuthPage() {
       email: '', 
       password: '', 
       confirmPassword: '',
-      role: preselectedRole 
+      role: (preselectedRole === 'buyer' || preselectedRole === 'seller') ? preselectedRole : 'buyer'
     },
   });
 
@@ -88,7 +88,22 @@ export function AuthPage() {
   };
   
   const onGoogleSignIn = async () => {
-    await loginWithGoogle();
+    // Si está en la pestaña de registro, necesitamos el rol
+    if (activeTab === 'register') {
+      const selectedRole = registerForm.getValues('role');
+      if (!selectedRole) {
+        toast({
+          title: 'Selecciona un tipo de cuenta',
+          description: 'Debes elegir si quieres ser comprador o vendedor antes de continuar con Google.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      await loginWithGoogle(true, selectedRole);
+    } else {
+      // Es un login normal
+      await loginWithGoogle(false);
+    }
   };
   
   // Efecto para manejar la redirección post-autenticación
@@ -143,7 +158,7 @@ export function AuthPage() {
                 </div>
               </div>
               <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={isLoading}>
-                <GoogleIcon className="mr-2 h-4 w-4" /> Google
+                <GoogleIcon className="mr-2 h-4 w-4" /> Iniciar sesión con Google
               </Button>
             </CardContent>
           </Card>
@@ -231,7 +246,7 @@ export function AuthPage() {
                 </div>
               </div>
               <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={isLoading}>
-                <GoogleIcon className="mr-2 h-4 w-4" /> Google
+                <GoogleIcon className="mr-2 h-4 w-4" /> Crear cuenta con Google
               </Button>
             </CardContent>
           </Card>

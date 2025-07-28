@@ -8,7 +8,8 @@ import {
   onAuthStateChanged,
   User as FirebaseUser,
   sendPasswordResetEmail,
-  updateProfile
+  updateProfile,
+  AuthError
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
@@ -34,7 +35,7 @@ interface AuthContextType {
   firebaseUser: FirebaseUser | null;
   login: (email: string, password: string) => Promise<boolean>;
   register: (email: string, password: string, name: string, role: UserRole) => Promise<boolean>;
-  loginWithGoogle: () => Promise<boolean>;
+  loginWithGoogle: (isRegistering?: boolean, role?: UserRole) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUser: (data: Partial<UserProfile>) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -108,8 +109,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       return true;
-    } catch (err: any) {
-      setError(getErrorMessage(err.code));
+    } catch (error) {
+      const authError = error as AuthError;
+      setError(getErrorMessage(authError.code));
       setIsLoading(false);
       return false;
     }
@@ -140,22 +142,61 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       await setDoc(doc(db, 'users', firebaseUser.uid), userProfile);
       return true;
-    } catch (err: any) {
-      setError(getErrorMessage(err.code));
+    } catch (error) {
+      const authError = error as AuthError;
+      setError(getErrorMessage(authError.code));
       setIsLoading(false);
       return false;
     }
   };
 
-  const loginWithGoogle = async (): Promise<boolean> => {
+  const loginWithGoogle = async (isRegistering: boolean = false, role?: UserRole): Promise<boolean> => {
     setIsLoading(true);
     clearError();
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const firebaseUser = result.user;
+      
+      // Check if user already exists in Firestore
+      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+      
+      if (!userDoc.exists()) {
+        // New user - create profile
+        if (isRegistering && role) {
+          // Creating new account with specified role
+          const userProfile: UserProfile = {
+            id: firebaseUser.uid,
+            firebaseUid: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            name: firebaseUser.displayName || '',
+            role: role === 'seller' ? 'pending_vendor' : role,
+            isApproved: role === 'buyer' || role === 'admin',
+            avatar: firebaseUser.photoURL,
+            needsRoleSelection: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          
+          await setDoc(doc(db, 'users', firebaseUser.uid), userProfile);
+          setUser(userProfile);
+          setNeedsRoleSelection(false);
+        } else {
+          // User logging in but doesn't exist - needs role selection
+          setNeedsRoleSelection(true);
+          setUser(null);
+        }
+      } else {
+        // Existing user - load profile
+        const userData = userDoc.data() as UserProfile;
+        setUser(userData);
+        setNeedsRoleSelection(userData.needsRoleSelection || false);
+      }
+      
       return true;
-    } catch (err: any) {
-      setError(getErrorMessage(err.code));
+    } catch (error) {
+      const authError = error as AuthError;
+      setError(getErrorMessage(authError.code));
       setIsLoading(false);
       return false;
     }
@@ -169,8 +210,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setFirebaseUser(null);
       setNeedsRoleSelection(false);
       navigate('/login');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error) {
+      console.error('Logout error:', error);
+      setError('Error al cerrar sesión');
     } finally {
       setIsLoading(false);
     }
@@ -181,17 +223,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     setIsLoading(true);
     try {
-      // Update Firestore document
-      await updateDoc(doc(db, 'users', firebaseUser.uid), {
+      const updateData = {
         ...data,
         updatedAt: new Date().toISOString()
-      });
+      };
+
+      // If this is a new user creation (has all required fields), use setDoc instead of updateDoc
+      if (data.id && data.firebaseUid && data.email && data.name && data.role !== undefined) {
+        await setDoc(doc(db, 'users', firebaseUser.uid), updateData);
+      } else {
+        await updateDoc(doc(db, 'users', firebaseUser.uid), updateData);
+      }
       
       // Update local state
-      setUser(prev => prev ? { ...prev, ...data } : null);
+      setUser(prev => prev ? { ...prev, ...updateData } : updateData as UserProfile);
       setNeedsRoleSelection(false);
-    } catch (err: any) {
+    } catch (error) {
+      console.error('Error updating user:', error);
       setError('Error al actualizar el perfil');
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -200,9 +250,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const resetPassword = async (email: string) => {
     try {
       await sendPasswordResetEmail(auth, email);
-    } catch (err: any) {
-      setError(getErrorMessage(err.code));
-      throw err;
+    } catch (error) {
+      console.error('Password reset error:', error);
+      const authError = error as AuthError;
+      setError(getErrorMessage(authError.code));
+      throw error;
     }
   };
 

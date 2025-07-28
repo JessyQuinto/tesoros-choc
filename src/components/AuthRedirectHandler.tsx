@@ -7,7 +7,7 @@ interface AuthRedirectHandlerProps {
 }
 
 export const AuthRedirectHandler = ({ children }: AuthRedirectHandlerProps) => {
-  const { user, firebaseUser, isLoading } = useAuth();
+  const { user, firebaseUser, isLoading, needsRoleSelection } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -16,16 +16,16 @@ export const AuthRedirectHandler = ({ children }: AuthRedirectHandlerProps) => {
     if (isLoading) return;
 
     // Si el usuario está autenticado con Firebase pero necesita seleccionar rol
-    if (firebaseUser && user?.needsRoleSelection) {
-      // Solo redireccionar si no está ya en la página de completar perfil
-      if (location.pathname !== '/complete-profile') {
-        navigate('/complete-profile', { replace: true });
+    if (firebaseUser && needsRoleSelection) {
+      // Solo redireccionar si no está ya en la página de selección de rol
+      if (location.pathname !== '/select-role') {
+        navigate('/select-role', { replace: true });
       }
       return;
     }
 
     // Si el usuario está autenticado y tiene un rol, redirigir según el rol
-    if (user && !user.needsRoleSelection) {
+    if (user && !needsRoleSelection) {
       const publicRoutes = ['/', '/products', '/about', '/auth', '/login', '/register'];
       const isOnPublicRoute = publicRoutes.includes(location.pathname);
       
@@ -52,7 +52,7 @@ export const AuthRedirectHandler = ({ children }: AuthRedirectHandlerProps) => {
         }
       }
     }
-  }, [user, firebaseUser, isLoading, navigate, location.pathname]);
+  }, [user, firebaseUser, isLoading, needsRoleSelection, navigate, location.pathname]);
 
   return <>{children}</>;
 };

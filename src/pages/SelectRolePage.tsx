@@ -16,25 +16,50 @@ export function SelectRolePage() {
   const navigate = useNavigate();
 
   const handleRoleSelection = async () => {
-    if (!selectedRole) {
+    if (!selectedRole || !firebaseUser) {
       toast({
-        title: 'Por favor, selecciona un rol',
+        title: 'Error',
+        description: 'Por favor, selecciona un rol válido',
         variant: 'destructive',
       });
       return;
     }
 
     try {
-      await updateUser({ role: selectedRole, needsRoleSelection: false });
+      // Create complete user profile
+      const userProfile = {
+        id: firebaseUser.uid,
+        firebaseUid: firebaseUser.uid,
+        email: firebaseUser.email || '',
+        name: firebaseUser.displayName || '',
+        role: selectedRole === 'seller' ? 'pending_vendor' : selectedRole,
+        isApproved: selectedRole === 'buyer',
+        avatar: firebaseUser.photoURL,
+        needsRoleSelection: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      await updateUser(userProfile);
+      
       toast({
-        title: '¡Rol seleccionado!',
-        description: `Tu perfil como ${selectedRole === 'buyer' ? 'comprador' : 'vendedor'} ha sido configurado.`,
+        title: '¡Perfil creado!',
+        description: selectedRole === 'seller' 
+          ? 'Tu cuenta como vendedor ha sido creada. Necesitas aprobación del administrador para publicar productos.'
+          : 'Tu cuenta como comprador ha sido creada. ¡Bienvenido a Tesoros Chocó!',
       });
-      navigate(selectedRole === 'buyer' ? '/' : '/seller-dashboard');
-    } catch (error: any) {
+      
+      // Redirect based on role
+      if (selectedRole === 'seller') {
+        navigate('/pending-approval');
+      } else {
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Error creating profile:', error);
       toast({
-        title: 'Error al guardar el rol',
-        description: error.message,
+        title: 'Error al crear el perfil',
+        description: 'Ocurrió un error al configurar tu cuenta. Intenta de nuevo.',
         variant: 'destructive',
       });
     }
