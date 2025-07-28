@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { RegistrationDataManager } from '@/lib/registration-manager';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,10 +21,21 @@ const profileSchema = z.object({
 });
 
 export function CompleteProfilePage() {
-  const { firebaseUser, updateUser, isLoading } = useAuth();
+  const { completeRegistration, isLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isSkipping, setIsSkipping] = useState(false);
+  const [tempData, setTempData] = useState(RegistrationDataManager.get());
+
+  useEffect(() => {
+    const data = RegistrationDataManager.get();
+    if (!data || !data.role) {
+      // No hay datos completos, redirigir al inicio
+      navigate('/login');
+      return;
+    }
+    setTempData(data);
+  }, [navigate]);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -35,46 +47,91 @@ export function CompleteProfilePage() {
   });
 
   const onSubmit = async (values: z.infer<typeof profileSchema>) => {
+    if (!tempData) {
+      toast({
+        title: 'Error',
+        description: 'No se encontraron datos de registro.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
-      await updateUser({
-        ...values,
-        needsRoleSelection: false,
-      });
+      // Agregar información adicional a los datos temporales
+      const completeData = {
+        ...tempData,
+        phone: values.phone,
+        address: values.address,
+        bio: values.bio,
+      };
+
+      // AQUÍ ES DONDE FINALMENTE CREAMOS LA CUENTA EN FIREBASE
+      const success = await completeRegistration(completeData);
       
-      toast({
-        title: '¡Perfil completado!',
-        description: 'Tu información adicional ha sido guardada exitosamente.',
-      });
-      
-      navigate('/');
+      if (success) {
+        // Limpiar datos temporales
+        RegistrationDataManager.clear();
+        
+        toast({
+          title: '¡Cuenta creada exitosamente!',
+          description: tempData.role === 'seller' 
+            ? 'Tu cuenta como vendedor ha sido creada. Necesitas aprobación del administrador.'
+            : '¡Bienvenido a Tesoros Chocó!',
+        });
+        
+        // Redirigir según el rol
+        if (tempData.role === 'seller') {
+          navigate('/pending-approval');
+        } else {
+          navigate('/');
+        }
+      }
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error('Error completing registration:', error);
       toast({
-        title: 'Error al actualizar',
-        description: 'Ocurrió un error al guardar tu información. Intenta de nuevo.',
+        title: 'Error al crear la cuenta',
+        description: 'Ocurrió un error al crear tu cuenta. Intenta de nuevo.',
         variant: 'destructive',
       });
     }
   };
 
   const handleSkip = async () => {
+    if (!tempData) {
+      toast({
+        title: 'Error',
+        description: 'No se encontraron datos de registro.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSkipping(true);
     try {
-      await updateUser({
-        needsRoleSelection: false,
-      });
+      // CREAR CUENTA SIN INFORMACIÓN ADICIONAL
+      const success = await completeRegistration(tempData);
       
-      toast({
-        title: 'Perfil configurado',
-        description: 'Puedes completar tu información más tarde desde configuraciones.',
-      });
-      
-      navigate('/');
+      if (success) {
+        // Limpiar datos temporales
+        RegistrationDataManager.clear();
+        
+        toast({
+          title: '¡Cuenta creada!',
+          description: 'Puedes completar tu información más tarde desde configuraciones.',
+        });
+        
+        // Redirigir según el rol
+        if (tempData.role === 'seller') {
+          navigate('/pending-approval');
+        } else {
+          navigate('/');
+        }
+      }
     } catch (error) {
       console.error('Error skipping profile:', error);
       toast({
-        title: 'Error',
-        description: 'Ocurrió un error. Intenta de nuevo.',
+        title: 'Error al crear la cuenta',
+        description: 'Ocurrió un error al crear tu cuenta. Intenta de nuevo.',
         variant: 'destructive',
       });
     } finally {

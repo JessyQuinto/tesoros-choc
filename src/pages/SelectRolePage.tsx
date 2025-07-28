@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { RegistrationDataManager } from '@/lib/registration-manager';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -11,12 +12,23 @@ type Role = 'buyer' | 'seller';
 
 export function SelectRolePage() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const { createUserProfile, isLoading, firebaseUser } = useAuth();
+  const [tempData, setTempData] = useState(RegistrationDataManager.get());
+  const { isLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const data = RegistrationDataManager.get();
+    if (!data) {
+      // No hay datos de registro, redirigir al login
+      navigate('/login');
+      return;
+    }
+    setTempData(data);
+  }, [navigate]);
+
   const handleRoleSelection = async () => {
-    if (!selectedRole || !firebaseUser) {
+    if (!selectedRole || !tempData) {
       toast({
         title: 'Error',
         description: 'Por favor, selecciona un rol válido',
@@ -25,49 +37,25 @@ export function SelectRolePage() {
       return;
     }
 
-    try {
-      // Create complete user profile
-      const userProfileData = {
-        email: firebaseUser.email || '',
-        name: firebaseUser.displayName || '',
-        role: selectedRole,
-        isApproved: selectedRole === 'buyer',
-        avatar: firebaseUser.photoURL,
-        needsRoleSelection: false,
-      };
-
-      const success = await createUserProfile(userProfileData);
-      
-      if (success) {
-        toast({
-          title: '¡Perfil creado!',
-          description: selectedRole === 'seller' 
-            ? 'Tu cuenta como vendedor ha sido creada. Necesitas aprobación del administrador para publicar productos.'
-            : 'Tu cuenta como comprador ha sido creada. ¡Bienvenido a Tesoros Chocó!',
-        });
-        
-        // Redirect based on role
-        if (selectedRole === 'seller') {
-          navigate('/pending-approval');
-        } else {
-          navigate('/complete-profile');
-        }
-      }
-    } catch (error) {
-      console.error('Error creating profile:', error);
-      toast({
-        title: 'Error al crear el perfil',
-        description: 'Ocurrió un error al configurar tu cuenta. Intenta de nuevo.',
-        variant: 'destructive',
-      });
-    }
+    // Guardar el rol seleccionado en los datos temporales
+    RegistrationDataManager.save({
+      role: selectedRole
+    });
+    
+    toast({
+      title: 'Rol seleccionado',
+      description: `Has elegido ser ${selectedRole === 'buyer' ? 'comprador' : 'vendedor'}.`
+    });
+    
+    // Ir a completar perfil
+    navigate('/complete-profile');
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-          ¡Bienvenido, {firebaseUser?.displayName || 'nuevo usuario'}!
+          ¡Bienvenido, {tempData?.name || tempData?.googleUser?.name || 'nuevo usuario'}!
         </h1>
         <p className="mt-3 text-lg text-gray-600 dark:text-gray-300">
           Para personalizar tu experiencia, elige cómo quieres empezar.

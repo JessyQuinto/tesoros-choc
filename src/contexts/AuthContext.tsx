@@ -14,6 +14,7 @@ import {
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 import { useNavigate } from 'react-router-dom';
+import type { TempRegistrationData } from '../lib/registration-manager';
 
 export type UserRole = 'buyer' | 'seller' | 'admin' | 'pending_vendor';
 
@@ -38,6 +39,7 @@ interface AuthContextType {
   firebaseUser: FirebaseUser | null;
   login: (email: string, password: string) => Promise<boolean>;
   register: (email: string, password: string, name: string) => Promise<boolean>;
+  completeRegistration: (registrationData: TempRegistrationData) => Promise<boolean>;
   loginWithGoogle: (isRegistering?: boolean, role?: UserRole) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUser: (data: Partial<UserProfile>) => Promise<void>;
@@ -122,19 +124,84 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const register = async (email: string, password: string, name: string): Promise<boolean> => {
+    // NO crear cuenta inmediatamente, solo guardar datos temporalmente
+    // Esta será la lógica temporal hasta completar el flujo
     setIsLoading(true);
     clearError();
+    
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
-      
-      // Solo actualizar el displayName en Firebase Auth
-      await updateProfile(firebaseUser, { displayName: name });
-      
-      // NO crear el documento en Firestore todavía
-      // El usuario necesita seleccionar rol y completar perfil
+      // Por ahora, simular éxito pero NO crear cuenta en Firebase
+      // Los datos se guardarán en localStorage temporalmente
       setNeedsRoleSelection(true);
-      setUser(null);
+      setIsLoading(false);
+      return true;
+    } catch (error) {
+      const authError = error as AuthError;
+      setError(getErrorMessage(authError.code));
+      setIsLoading(false);
+      return false;
+    }
+  };
+
+  const completeRegistration = async (registrationData: TempRegistrationData): Promise<boolean> => {
+    setIsLoading(true);
+    clearError();
+    
+    try {
+      if (registrationData.isGoogleAuth && registrationData.googleUser) {
+        // Para Google, ya está autenticado, solo crear perfil
+        if (!firebaseUser) {
+          setError('Error de autenticación con Google');
+          return false;
+        }
+        
+        const userProfile: UserProfile = {
+          id: firebaseUser.uid,
+          firebaseUid: firebaseUser.uid,
+          email: registrationData.googleUser.email,
+          name: registrationData.googleUser.name,
+          role: registrationData.role === 'seller' ? 'pending_vendor' : (registrationData.role as UserRole),
+          isApproved: registrationData.role === 'buyer',
+          avatar: registrationData.googleUser.avatar,
+          needsRoleSelection: false,
+          phone: registrationData.phone,
+          address: registrationData.address,
+          bio: registrationData.bio,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        await setDoc(doc(db, 'users', firebaseUser.uid), userProfile);
+        setUser(userProfile);
+        setNeedsRoleSelection(false);
+        
+      } else {
+        // Para registro con email/password, crear cuenta completa
+        const userCredential = await createUserWithEmailAndPassword(auth, registrationData.email, registrationData.password);
+        const firebaseUser = userCredential.user;
+        
+        await updateProfile(firebaseUser, { displayName: registrationData.name });
+        
+        const userProfile: UserProfile = {
+          id: firebaseUser.uid,
+          firebaseUid: firebaseUser.uid,
+          email: registrationData.email,
+          name: registrationData.name,
+          role: registrationData.role === 'seller' ? 'pending_vendor' : (registrationData.role as UserRole),
+          isApproved: registrationData.role === 'buyer',
+          avatar: null,
+          needsRoleSelection: false,
+          phone: registrationData.phone,
+          address: registrationData.address,
+          bio: registrationData.bio,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        await setDoc(doc(db, 'users', firebaseUser.uid), userProfile);
+        setUser(userProfile);
+        setNeedsRoleSelection(false);
+      }
       
       return true;
     } catch (error) {
@@ -282,6 +349,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     firebaseUser,
     login,
     register,
+    completeRegistration,
     loginWithGoogle,
     logout,
     updateUser,

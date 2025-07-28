@@ -5,14 +5,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { RegistrationDataManager } from '@/lib/registration-manager';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
 import { GoogleIcon } from '@/components/ui/icons';
 
 const loginSchema = z.object({
@@ -33,7 +32,7 @@ const registerSchema = z.object({
 export function AuthPage() {
   const [activeTab, setActiveTab] = useState('login');
   const [searchParams] = useSearchParams();
-  const { login, register, loginWithGoogle, error, isLoading, clearError } = useAuth();
+  const { login, register, loginWithGoogle, firebaseUser, error, isLoading, clearError } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -71,18 +70,39 @@ export function AuthPage() {
   };
 
   const onRegister = async (values: z.infer<typeof registerSchema>) => {
-    const success = await register(values.email, values.password, values.name);
+    // NO crear cuenta todavía, solo guardar datos temporalmente
+    RegistrationDataManager.save({
+      email: values.email,
+      password: values.password,
+      name: values.name,
+      isGoogleAuth: false
+    });
     
-    if (success) {
-      toast({
-        title: "¡Cuenta creada!",
-        description: "Tu cuenta se creó exitosamente. Ahora necesitas completar tu perfil."
-      });
-    }
+    toast({
+      title: "Información guardada",
+      description: "Ahora selecciona el tipo de cuenta que deseas crear."
+    });
+    
+    // Redirigir a selección de rol
+    navigate('/select-role');
   };
   
   const onGoogleSignIn = async () => {
-    await loginWithGoogle();
+    const success = await loginWithGoogle();
+    
+    if (success) {
+      // Si es un usuario nuevo (needsRoleSelection), guardar datos de Google temporalmente
+      if (firebaseUser) {
+        RegistrationDataManager.save({
+          isGoogleAuth: true,
+          googleUser: {
+            email: firebaseUser.email || '',
+            name: firebaseUser.displayName || '',
+            avatar: firebaseUser.photoURL
+          }
+        });
+      }
+    }
   };
   
   // Efecto para manejar la redirección post-autenticación
