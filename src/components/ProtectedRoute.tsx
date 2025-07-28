@@ -38,14 +38,14 @@ export const ProtectedRoute = ({
 
   // Check if approval is required and user is not approved
   if (requireApproval && !user.isApproved) {
-    if (user.role === 'pending_vendor') {
+    if (user.role === 'seller') {
       return <Navigate to="/pending-approval" replace />;
     }
     return <Navigate to="/" replace />;
   }
 
-  // Check for pending vendor trying to access seller features
-  if (user.role === 'pending_vendor' && requiredRole === 'seller') {
+  // Check for pending seller trying to access seller features
+  if (user.role === 'seller' && !user.isApproved && requiredRole === 'seller') {
     return <Navigate to="/pending-approval" replace />;
   }
 

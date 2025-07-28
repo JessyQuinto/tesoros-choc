@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,23 @@ export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login, error, clearError } = useAuth();
+  const { login, error, clearError, user } = useAuth();
   const navigate = useNavigate();
+
+  // Handle navigation after successful login
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'seller' && !user.isApproved) {
+        navigate('/pending-approval');
+      } else if (user.role === 'admin') {
+        navigate('/admin-dashboard');
+      } else if (user.role === 'seller' && user.isApproved) {
+        navigate('/seller-dashboard');
+      } else {
+        navigate('/');
+      }
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +42,7 @@ export const Login = () => {
 
     try {
       await login(email, password);
-      navigate('/'); // Redirect will be handled by auth state
+      // Navigation will be handled by useEffect when user state changes
     } catch (err) {
       // Error is handled by context
     } finally {
