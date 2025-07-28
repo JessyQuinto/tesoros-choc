@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "localhost",
     port: 3000,
     open: true, // Abre automáticamente el navegador
-    strictPort: true, // Falla si el puerto está ocupado
+    strictPort: false, // Intenta con el siguiente puerto si está ocupado
     headers: {
       "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
     },

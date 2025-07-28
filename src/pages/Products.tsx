@@ -144,32 +144,6 @@ const Products = () => {
     );
   }
 
-  const categories = [
-    { value: 'all', label: 'Todas las categorías' },
-    { value: 'textiles', label: 'Textiles' },
-    { value: 'basketry', label: 'Cestería' },
-    { value: 'jewelry', label: 'Joyería' },
-    { value: 'woodwork', label: 'Tallado' },
-    { value: 'ceramics', label: 'Cerámica' },
-    { value: 'instruments', label: 'Instrumentos' }
-  ];
-
-  const priceRanges = [
-    { value: 'all', label: 'Todos los precios' },
-    { value: '0-50000', label: 'Hasta $50,000' },
-    { value: '50000-100000', label: '$50,000 - $100,000' },
-    { value: '100000-200000', label: '$100,000 - $200,000' },
-    { value: '200000+', label: 'Más de $200,000' }
-  ];
-
-  const sortOptions = [
-    { value: 'featured', label: 'Destacados' },
-    { value: 'price-low', label: 'Precio: Menor a Mayor' },
-    { value: 'price-high', label: 'Precio: Mayor a Menor' },
-    { value: 'rating', label: 'Mejor Calificación' },
-    { value: 'newest', label: 'Más Recientes' }
-  ];
-
   return (
     <div><div className="container-full py-8 sm:py-12">
         {/* Hero Section Premium */}
