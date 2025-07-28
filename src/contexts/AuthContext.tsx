@@ -70,12 +70,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const register = async (data: any) => {
     try {
+      console.log('🚀 AuthContext: Iniciando registro con datos:', data);
       setIsLoading(true);
       setError(null);
+      
       const userProfile = await authService.register(data);
+      console.log('✅ AuthContext: Registro exitoso, perfil recibido:', userProfile);
+      
       setUser(userProfile);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      console.error('❌ AuthContext: Error en registro:', err);
+      const error = err as { message?: string };
+      setError(error.message || 'Error desconocido en registro');
       throw err;
     } finally {
       setIsLoading(false);

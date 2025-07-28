@@ -25,9 +25,13 @@ export class AuthService {
   // Registro de usuario
   async register(data: RegisterData): Promise<UserProfile> {
     try {
+      console.log('🚀 Iniciando registro para:', data.email, 'con rol:', data.role);
+      
       // 1. Crear usuario en Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const user = userCredential.user;
+      
+      console.log('✅ Usuario creado en Auth:', user.uid);
 
       // 2. Preparar datos del perfil
       const userProfile: UserProfile = {
@@ -36,22 +40,31 @@ export class AuthService {
         name: data.name,
         role: data.role,
         isApproved: data.role === 'buyer', // Compradores se aprueban automáticamente
-        phone: data.phone,
-        address: data.address,
-        businessName: data.businessName,
-        bio: data.bio,
-        createdAt: new Date().toISOString()
+        phone: data.phone || '',
+        address: data.address || '',
+        businessName: data.businessName || '',
+        bio: data.bio || '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
+
+      console.log('📝 Guardando perfil en Firestore:', userProfile);
 
       // 3. Guardar perfil en Firestore
       await setDoc(doc(db, 'users', user.uid), userProfile);
+      
+      console.log('✅ Perfil guardado exitosamente en Firestore');
 
       // 4. Enviar verificación de email
       await sendEmailVerification(user);
+      
+      console.log('📧 Email de verificación enviado');
 
       return userProfile;
-    } catch (error: any) {
-      throw new Error(this.getErrorMessage(error.code));
+    } catch (error: unknown) {
+      console.error('❌ Error en registro:', error);
+      const err = error as { code?: string; message?: string };
+      throw new Error(this.getErrorMessage(err.code || 'unknown'));
     }
   }
 
@@ -77,8 +90,10 @@ export class AuthService {
       }
 
       return userProfile;
-    } catch (error: any) {
-      throw new Error(this.getErrorMessage(error.code));
+    } catch (error: unknown) {
+      console.error('❌ Error en login:', error);
+      const err = error as { code?: string; message?: string };
+      throw new Error(this.getErrorMessage(err.code || 'unknown'));
     }
   }
 
@@ -86,7 +101,8 @@ export class AuthService {
   async logout(): Promise<void> {
     try {
       await signOut(auth);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      console.error('❌ Error en logout:', error);
       throw new Error('Error al cerrar sesión');
     }
   }
