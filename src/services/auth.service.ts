@@ -6,8 +6,8 @@ import {
   sendPasswordResetEmail,
   User
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from '@/config/firebase';
+import { auth } from '@/config/firebase';
+import { apiClient } from '@/lib/api-client';
 import { UserProfile, UserRole } from '@/types/user.types';
 
 export interface RegisterData {
@@ -21,8 +21,29 @@ export interface RegisterData {
   bio?: string;
 }
 
+export interface SellerRegistrationRequest {
+  businessName: string;
+  bio: string;
+  phone: string;
+}
+
 export class AuthService {
-  // Registro de usuario
+  // Verificar token con el backend y obtener perfil completo
+  async verifyTokenAndGetProfile(): Promise<UserProfile | null> {
+    try {
+      const user = auth.currentUser;
+      if (!user) return null;
+
+      // Verificar token con el backend
+      const profile = await apiClient.post<UserProfile>('/auth/verify-token', {});
+      return profile;
+    } catch (error) {
+      console.error('Error verificando token:', error);
+      return null;
+    }
+  }
+
+  // Registro de usuario (usando Firebase Auth + Backend)
   async register(data: RegisterData): Promise<UserProfile> {
     try {
       console.log('🚀 Iniciando registro para:', data.email, 'con rol:', data.role);
@@ -33,13 +54,20 @@ export class AuthService {
       
       console.log('✅ Usuario creado en Auth:', user.uid);
 
-      // 2. Preparar datos del perfil
+      // 2. Enviar verificación de email
+      await sendEmailVerification(user);
+      console.log('📧 Email de verificación enviado');
+
+      // 3. El backend se encargará de crear el perfil cuando se verifique el token
+      // por primera vez, usando la información de Firebase Auth
+      
+      // Por ahora, devolvemos un perfil temporal
       const userProfile: UserProfile = {
         id: user.uid,
         email: data.email,
         name: data.name,
         role: data.role,
-        isApproved: data.role === 'buyer', // Compradores se aprueban automáticamente
+        isApproved: data.role === 'buyer',
         phone: data.phone || '',
         address: data.address || '',
         businessName: data.businessName || '',
@@ -47,18 +75,6 @@ export class AuthService {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
-
-      console.log('📝 Guardando perfil en Firestore:', userProfile);
-
-      // 3. Guardar perfil en Firestore
-      await setDoc(doc(db, 'users', user.uid), userProfile);
-      
-      console.log('✅ Perfil guardado exitosamente en Firestore');
-
-      // 4. Enviar verificación de email
-      await sendEmailVerification(user);
-      
-      console.log('📧 Email de verificación enviado');
 
       return userProfile;
     } catch (error: unknown) {
@@ -77,16 +93,15 @@ export class AuthService {
 
       // 2. Verificar si el email está verificado
       if (!user.emailVerified) {
-        // Reenviar email de verificación
         await sendEmailVerification(user);
         throw new Error('Por favor verifica tu email. Hemos reenviado el correo de verificación.');
       }
 
-      // 3. Obtener perfil de Firestore
-      const userProfile = await this.getUserProfile(user.uid);
+      // 3. Verificar token con backend y obtener perfil completo
+      const userProfile = await this.verifyTokenAndGetProfile();
       
       if (!userProfile) {
-        throw new Error('Perfil de usuario no encontrado');
+        throw new Error('Error obteniendo perfil del servidor');
       }
 
       return userProfile;
@@ -97,6 +112,26 @@ export class AuthService {
     }
   }
 
+  // Obtener perfil del usuario actual
+  async getUserProfile(): Promise<UserProfile | null> {
+    try {
+      return await apiClient.get<UserProfile>('/users/profile', true);
+    } catch (error) {
+      console.error('Error obteniendo perfil:', error);
+      return null;
+    }
+  }
+
+  // Actualizar perfil del usuario
+  async updateProfile(updates: Partial<UserProfile>): Promise<UserProfile> {
+    return await apiClient.put<UserProfile>('/users/profile', updates, true);
+  }
+
+  // Solicitar conversión a vendedor (buyer -> seller)
+  async registerAsSeller(data: SellerRegistrationRequest): Promise<void> {
+    await apiClient.post<void>('/users/register-seller', data as unknown as Record<string, unknown>, true);
+  }
+
   // Logout
   async logout(): Promise<void> {
     try {
@@ -104,22 +139,6 @@ export class AuthService {
     } catch (error: unknown) {
       console.error('❌ Error en logout:', error);
       throw new Error('Error al cerrar sesión');
-    }
-  }
-
-  // Obtener perfil de usuario
-  async getUserProfile(uid: string): Promise<UserProfile | null> {
-    try {
-      const userDoc = await getDoc(doc(db, 'users', uid));
-      
-      if (userDoc.exists()) {
-        return userDoc.data() as UserProfile;
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Error obteniendo perfil:', error);
-      return null;
     }
   }
 

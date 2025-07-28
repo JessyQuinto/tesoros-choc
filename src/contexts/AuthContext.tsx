@@ -1,7 +1,7 @@
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/config/firebase';
-import { authService } from '@/services/auth.service';
+import { authService, RegisterData } from '@/services/auth.service';
 import { UserProfile } from '@/types/user.types';
 
 interface AuthContextType {
@@ -9,7 +9,7 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (data: any) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
   updateUser: (user: UserProfile) => void;
@@ -39,12 +39,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setIsLoading(true);
       
-      if (firebaseUser) {
-        // Usuario autenticado - obtener perfil
-        const userProfile = await authService.getUserProfile(firebaseUser.uid);
-        setUser(userProfile);
+      if (firebaseUser && firebaseUser.emailVerified) {
+        try {
+          // Usuario autenticado - verificar token con backend y obtener perfil
+          const userProfile = await authService.verifyTokenAndGetProfile();
+          setUser(userProfile);
+        } catch (err) {
+          console.error('Error obteniendo perfil del backend:', err);
+          setUser(null);
+        }
       } else {
-        // Usuario no autenticado
+        // Usuario no autenticado o email no verificado
         setUser(null);
       }
       
@@ -60,15 +65,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setError(null);
       const userProfile = await authService.login(email, password);
       setUser(userProfile);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message);
       throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (data: any) => {
+  const register = async (data: RegisterData) => {
     try {
       console.log('🚀 AuthContext: Iniciando registro con datos:', data);
       setIsLoading(true);
@@ -93,8 +99,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(true);
       await authService.logout();
       setUser(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
