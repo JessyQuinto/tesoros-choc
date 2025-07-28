@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { adminService } from '@/services/AdminService';
 import { notificationService } from '@/services/NotificationService';
 import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
-import { db } from '@/config/firebase';
+// Firebase removed - using mock data
 import { Users, UserCheck, UserX, Shield } from 'lucide-react';
 
 interface UserManagementViewModel {

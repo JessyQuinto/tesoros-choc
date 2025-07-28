@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { UserProfile } from "@/services/UserRepository";
+import { UserProfile } from "@/services/AdminService";
 import { cn } from "@/lib/utils";
 
 export type UserManagementViewModel = Pick<
