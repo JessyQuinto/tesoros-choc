@@ -382,6 +382,127 @@ Sistema de diseño inspirado en la naturaleza colombiana y la artesanía del Cho
     background: hsl(var(--primary));
   }
 
+  /* === ESTILOS PARA FORMULARIOS DE LOGIN Y REGISTRO === */
+  .auth-card {
+    @apply backdrop-blur-sm bg-card/80 border-border/20 shadow-2xl;
+  }
+
+  .auth-input {
+    @apply h-12 bg-background/50 border-border/50 rounded-xl focus:border-primary/50 focus:ring-primary/20 transition-all duration-200;
+  }
+
+  .auth-input-icon {
+    @apply absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors duration-200;
+  }
+
+  .auth-button {
+    @apply h-12 bg-gradient-to-r from-primary via-secondary to-accent text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:transform-none;
+  }
+
+  .auth-logo {
+    @apply w-20 h-20 bg-gradient-to-br from-primary via-secondary to-accent rounded-3xl flex items-center justify-center shadow-xl rotate-3 transition-transform duration-500 hover:rotate-6 hover:scale-110;
+  }
+
+  .auth-background {
+    @apply min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4 relative overflow-hidden;
+  }
+
+  .auth-decorative-bg {
+    @apply absolute inset-0 overflow-hidden;
+  }
+
+  .auth-decorative-blob-1 {
+    @apply absolute -top-4 -left-4 w-72 h-72 bg-primary/5 rounded-full blur-3xl;
+  }
+
+  .auth-decorative-blob-2 {
+    @apply absolute -bottom-4 -right-4 w-72 h-72 bg-secondary/5 rounded-full blur-3xl;
+  }
+
+  .auth-decorative-blob-3 {
+    @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-accent/3 rounded-full blur-3xl;
+  }
+
+  .step-indicator {
+    @apply w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300;
+  }
+
+  .step-indicator.active {
+    @apply bg-gradient-to-r from-primary to-secondary text-white shadow-lg;
+  }
+
+  .step-indicator.inactive {
+    @apply bg-muted text-muted-foreground;
+  }
+
+  .step-progress-line {
+    @apply w-8 h-1 mx-2 rounded-full transition-all duration-300;
+  }
+
+  .step-progress-line.completed {
+    @apply bg-gradient-to-r from-primary to-secondary;
+  }
+
+  .step-progress-line.pending {
+    @apply bg-muted;
+  }
+
+  .role-selection-card {
+    @apply relative p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-lg;
+  }
+
+  .role-selection-card.selected {
+    @apply border-primary bg-primary/5 shadow-md transform scale-[1.02];
+  }
+
+  .role-selection-card.unselected {
+    @apply border-border/50 hover:border-primary/30 hover:bg-muted/30;
+  }
+
+  .role-icon {
+    @apply p-3 rounded-xl transition-colors duration-200;
+  }
+
+  .role-icon.selected {
+    @apply bg-primary text-white;
+  }
+
+  .role-icon.unselected {
+    @apply bg-muted text-muted-foreground;
+  }
+
+  /* Animaciones específicas */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .auth-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .auth-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+  }
+
   /* Utilidades de safe area */
   .safe-top {
     padding-top: env(safe-area-inset-top);
