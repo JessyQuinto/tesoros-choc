@@ -1,6 +1,54 @@
-# Welcome to your Lovable project
+# 🍫 Tesoros del Chocó - Proyecto SENA
 
-## Project info
+Marketplace para productos artesanales del Chocó desarrollado como proyecto académico del SENA.
+
+## 🚀 Inicio Rápido para Desarrollo
+
+### Opción 1: Script Automático (Recomendado)
+```bash
+# Doble click en el archivo:
+iniciar-desarrollo.bat
+```
+
+### Opción 2: Comandos Manuales
+```bash
+# Instalar dependencias (solo la primera vez)
+npm install
+
+# Iniciar servidor de desarrollo
+npm run dev
+# o también puedes usar:
+npm start
+```
+
+La aplicación se abrirá automáticamente en: **http://localhost:3000**
+
+## 🛠️ Scripts Disponibles
+
+- `npm run dev` - Servidor de desarrollo con auto-reload
+- `npm run start` - Alias para npm run dev
+- `npm run build` - Construir para producción
+- `npm run preview` - Previsualizar build de producción
+- `npm run lint` - Revisar código
+- `npm run format` - Formatear código
+
+## 🔧 Configuración
+
+- **Puerto de desarrollo:** 3000
+- **Puerto de preview:** 3001
+- **Auto-abrir navegador:** Sí
+- **Host:** localhost
+
+## 📝 Notas del Proyecto
+
+- ✅ Proyecto académico SENA
+- ✅ No va a producción
+- ✅ Configurado para desarrollo local
+- ✅ Firebase configurado para testing
+
+---
+
+## Project info (Original Lovable)
 
 **URL**: https://lovable.dev/projects/412ba776-2dbf-463c-af37-a152465d6039
 
