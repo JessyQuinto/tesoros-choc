@@ -37,25 +37,35 @@ export class ApiClient {
   private async handleResponse<T>(response: Response): Promise<T> {
     const data: ApiResponse<T> = await response.json();
     
+    console.log('📄 API Response Data:', data);
+    
     if (!response.ok) {
+      console.error('❌ API Error:', { status: response.status, error: data.error });
       throw new Error(data.error || `HTTP error! status: ${response.status}`);
     }
 
     if (!data.success) {
+      console.error('❌ API Request Failed:', data.error);
       throw new Error(data.error || 'Request failed');
     }
 
+    console.log('✅ API Success:', data.data);
     return data.data as T;
   }
 
   // Public endpoints (no auth required)
   async get<T>(endpoint: string, requireAuth: boolean = false): Promise<T> {
     const headers = requireAuth ? await this.getAuthHeaders() : { 'Content-Type': 'application/json' };
+    const fullUrl = `${this.baseUrl}${endpoint}`;
     
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+    console.log('🌐 API GET Request:', { url: fullUrl, requireAuth, headers });
+    
+    const response = await fetch(fullUrl, {
       method: 'GET',
       headers
     });
+    
+    console.log('📡 API Response:', { status: response.status, ok: response.ok });
     
     return this.handleResponse<T>(response);
   }

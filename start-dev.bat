@@ -16,8 +16,20 @@ if not exist "node_modules" (
 )
 
 echo.
-echo Iniciando servidor de desarrollo...
-echo La aplicacion se abrira automaticamente en: http://localhost:3000
+echo ===================================
+echo  CONFIGURACION DE SERVICIOS
+echo ===================================
+echo.
+echo Frontend: http://localhost:5173 (este proyecto)
+echo Backend:   http://localhost:3000 (backend-marketplace)
+echo.
+echo IMPORTANTE: Asegurate que el backend este ejecutandose
+echo en el proyecto backend-marketplace en puerto 3000
+echo.
+
+echo.
+echo Iniciando servidor de desarrollo frontend...
+echo La aplicacion se abrira automaticamente en: http://localhost:5173
 echo.
 echo Para detener el servidor, presiona Ctrl+C
 echo.

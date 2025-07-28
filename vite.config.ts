@@ -7,7 +7,7 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "localhost",
-    port: 3000,
+    port: 5173, // Puerto diferente para el frontend
     open: true, // Abre automáticamente el navegador
     strictPort: false, // Intenta con el siguiente puerto si está ocupado
     headers: {

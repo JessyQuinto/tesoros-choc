@@ -2,7 +2,7 @@
 export const API_CONFIG = {
   BASE_URL: process.env.NODE_ENV === 'production' 
     ? 'https://tu-backend-url.com/api' // Cambia esto por tu URL de producción
-    : 'http://localhost:3000/api',
+    : 'http://localhost:3000/api',  // Backend en puerto 3000
   
   TIMEOUT: 10000, // 10 segundos
   

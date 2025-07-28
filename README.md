@@ -4,30 +4,44 @@ Marketplace para productos artesanales del Chocó desarrollado como proyecto aca
 
 ## 🚀 Inicio Rápido para Desarrollo
 
-### Opción 1: Script Automático (Recomendado)
+### ⚡ Opción 1: Stack Completo (Recomendado)
 ```bash
-# Doble click en el archivo:
+# Para Frontend + Backend juntos:
+start-fullstack.bat
+```
+
+### 🎨 Opción 2: Solo Frontend
+```bash
+# Solo frontend (sin datos reales):
 start-dev.bat
 ```
 
-### Opción 2: Script Legacy
-```bash
-# También puedes usar:
-iniciar-desarrollo.bat
-```
-
-### Opción 3: Comandos Manuales
+### 🔧 Opción 3: Manual
 ```bash
 # Instalar dependencias (solo la primera vez)
 npm install
 
 # Iniciar servidor de desarrollo
 npm run dev
-# o también puedes usar:
-npm start
 ```
 
-**La aplicación se abrirá automáticamente en: http://localhost:3000**
+**URLs del proyecto:**
+- **Frontend**: http://localhost:5173
+- **Backend**: http://localhost:3000 (proyecto separado)
+
+## 🏗️ Arquitectura del Proyecto
+
+### Frontend (este proyecto)
+- **Puerto**: 5173
+- **Tecnología**: React + Vite + TypeScript
+- **UI**: Shadcn/UI + Tailwind CSS
+- **Auth**: Firebase Authentication
+
+### Backend (proyecto separado)
+- **Puerto**: 3000  
+- **Ubicación**: `D:\DOCUMENTOS\GitHub\backend-marketplace`
+- **Tecnología**: Node.js + Express + TypeScript
+- **Base de datos**: Firebase Admin SDK
 
 ## 🛠️ Scripts Disponibles
 
@@ -42,11 +56,12 @@ npm start
 
 ## 🔧 Configuración
 
-- **Puerto de desarrollo:** 3000 (con fallback automático)
-- **Puerto de preview:** 3001
-- **Auto-abrir navegador:** Sí
-- **Host:** localhost
-- **Modo strict port:** Desactivado (busca puerto disponible automáticamente)
+- **Puerto Frontend**: 5173 (Vite dev server)
+- **Puerto Backend**: 3000 (Express server)
+- **Auto-abrir navegador**: Sí
+- **Host**: localhost
+- **Modo strict port**: Desactivado (busca puerto disponible automáticamente)
+- **API Base URL**: http://localhost:3000/api
 
 ## ✅ Estado del Proyecto
 
