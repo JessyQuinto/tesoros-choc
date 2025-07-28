@@ -195,12 +195,12 @@ export const Header = () => {
                 {/* Desktop Login/Register Premium */}
                 <div className="hidden sm:flex items-center space-x-4">
                   <Link 
-                    to="/auth" 
+                    to="/login" 
                     className="text-sm font-medium text-foreground/80 hover:text-primary transition-all duration-300"
                   >
                     Acceder
                   </Link>
-                  <Link to="/auth">
+                  <Link to="/register">
                     <Button className="btn-primary h-10 px-6 font-medium">
                       Comenzar
                     </Button>
@@ -337,12 +337,12 @@ export const Header = () => {
 
                         {/* Login/Register Premium */}
                         <div className="space-y-3 pt-6 border-t border-border/30">
-                          <Link to="/auth" className="block">
+                          <Link to="/login" className="block">
                             <Button variant="outline" className="w-full h-12 font-medium border-2 hover:border-primary">
                               Iniciar Sesión
                             </Button>
                           </Link>
-                          <Link to="/auth" className="block">
+                          <Link to="/register" className="block">
                             <Button className="btn-primary w-full h-12">
                               Registrarse
                             </Button>
