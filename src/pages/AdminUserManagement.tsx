@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DataTable, Column } from '@/components/shared/DataTable';
-import { UserRole } from '@/contexts/AuthContext';
+import { UserRole } from '@/types/user.types';
 import { useToast } from '@/hooks/use-toast';
 import { adminService } from '@/services/AdminService';
 import { notificationService } from '@/services/NotificationService';
