@@ -216,7 +216,7 @@ const Products = () => {
   });
 
   return (
-    <div><div className="container-max py-8 sm:py-12">
+    <div><div className="container-full py-8 sm:py-12">
         {/* Hero Section Premium */}
         <div className="mb-12 text-center space-y-4">
           <Badge className="bg-gradient-to-r from-primary to-secondary text-white border-0 px-6 py-3 text-base font-medium rounded-full shadow-lg mb-6">

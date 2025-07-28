@@ -12,7 +12,7 @@ const BuyerDashboard = () => {
   // Protección de acceso - Solo compradores
   if (!user || user.role !== 'buyer') {
     return (
-      <div><div className="container mx-auto px-4 py-8">
+      <div><div className="container-full py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
@@ -85,7 +85,7 @@ const BuyerDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background"><div className="container-full py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">¡Hola, {user?.name}!</h1>
           <p className="text-muted-foreground">Descubre los tesoros artesanales del Chocó</p>

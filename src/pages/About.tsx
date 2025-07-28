@@ -35,7 +35,7 @@ const About = () => {
   ];
 
   return (
-    <div><div className="container mx-auto px-4 py-12">
+    <div><div className="container-full py-12">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-choco-earth to-choco-wood bg-clip-text text-transparent">

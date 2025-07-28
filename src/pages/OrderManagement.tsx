@@ -305,7 +305,7 @@ export const OrderManagement = () => {
 
   if (user?.role !== 'seller' && user?.role !== 'admin' && user?.role !== 'buyer') {
     return (
-      <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8">
+      <div className="min-h-screen bg-background"><div className="container-full py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
@@ -318,7 +318,7 @@ export const OrderManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background"><div className="container-full py-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>

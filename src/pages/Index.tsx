@@ -67,7 +67,7 @@ const Index = () => {
           style={{ backgroundImage: `url(${heroImage})` }}
         ></div>
         
-        <div className="relative z-20 container-max space-section">
+        <div className="relative z-20 container-full space-section">
           <div className="max-w-4xl space-y-8 animate-fade-in">
             <div className="space-y-6">
               <Badge className="bg-gradient-to-r from-primary to-secondary text-white border-0 px-4 py-2 text-sm font-medium rounded-full shadow-lg">
@@ -140,7 +140,7 @@ const Index = () => {
 
       {/* Categories Section Premium - Responsivo */}
       <section className="space-section bg-muted/30">
-        <div className="container-max">
+        <div className="container-full">
           <div className="text-center mb-16 space-y-4">
             <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5 px-4 py-2">
               Tradiciones Ancestrales
@@ -182,7 +182,7 @@ const Index = () => {
 
       {/* Featured Products Section Premium - Responsivo */}
       <section className="space-section">
-        <div className="container-max">
+        <div className="container-full">
           <div className="text-center mb-16 space-y-4">
             <Badge variant="outline" className="border-secondary/30 text-secondary bg-secondary/5 px-4 py-2">
               Selección Especial

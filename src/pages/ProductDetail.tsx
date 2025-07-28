@@ -142,7 +142,7 @@ Cada cesta es única debido a la naturaleza artesanal del proceso. Las pequeñas
   const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
 
   return (
-    <div><div className="container mx-auto px-4 py-8">
+    <div><div className="container-full py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-6 text-sm text-muted-foreground">
           <Button

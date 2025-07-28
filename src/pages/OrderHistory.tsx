@@ -281,7 +281,7 @@ export const OrderHistory = () => {
 
   if (user?.role !== 'buyer') {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container-full py-8">
         <Card>
           <CardContent className="p-8 text-center">
             <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
@@ -293,7 +293,7 @@ export const OrderHistory = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container-full py-8 max-w-6xl">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Mis Pedidos</h1>

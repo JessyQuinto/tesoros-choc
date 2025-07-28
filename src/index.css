@@ -257,12 +257,28 @@ Sistema de diseño inspirado en la naturaleza colombiana y la artesanía del Cho
 /* === UTILIDADES RESPONSIVE MEJORADAS === */
 @layer utilities {
   /* Contenedores responsivos */
+  /* Contenedores optimizados */
   .container-padding {
     @apply px-4 sm:px-6 lg:px-8 xl:px-12;
   }
 
   .container-max {
     @apply max-w-7xl mx-auto container-padding;
+  }
+
+  /* Contenedor de ancho completo sin márgenes */
+  .container-full {
+    @apply w-full px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Contenedor sin padding para componentes que necesitan ocupar todo el ancho */
+  .container-fluid {
+    @apply w-full;
+  }
+
+  /* Contenedor con padding mínimo */
+  .container-minimal {
+    @apply max-w-7xl mx-auto px-2 sm:px-4;
   }
 
   /* Tipografía responsive mejorada */

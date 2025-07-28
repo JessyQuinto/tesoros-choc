@@ -265,7 +265,7 @@ export const FinancialDashboard = () => {
 
   if (user?.role !== 'seller') {
     return (
-      <div><div className="container mx-auto px-4 py-8">
+      <div><div className="container-full py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
@@ -277,7 +277,7 @@ export const FinancialDashboard = () => {
   }
 
   return (
-    <div><div className="container mx-auto px-4 py-8">
+    <div><div className="container-full py-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>

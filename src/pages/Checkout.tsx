@@ -123,7 +123,7 @@ const Checkout = () => {
 
   if (!user || user.role !== 'buyer') {
     return (
-      <div><div className="container mx-auto px-4 py-8">
+      <div><div className="container-full py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Restringido</h2>
@@ -140,7 +140,7 @@ const Checkout = () => {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8">
+      <div className="min-h-screen bg-background"><div className="container-full py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold mb-4">Carrito Vacío</h2>
@@ -156,7 +156,7 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background"><div className="container-full py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button

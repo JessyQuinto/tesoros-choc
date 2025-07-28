@@ -283,7 +283,7 @@ export const AddressBook = () => {
 
   if (!user) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container-full py-8">
         <Card>
           <CardContent className="p-8 text-center">
             <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
@@ -295,7 +295,7 @@ export const AddressBook = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container-full py-8 max-w-4xl">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
