@@ -8,8 +8,7 @@ import { UserRole } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { adminService } from '@/services/AdminService';
 import { notificationService } from '@/services/NotificationService';
-import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
-// Firebase removed - using mock data
+// Mock data instead of Firebase
 import { Users, UserCheck, UserX, Shield } from 'lucide-react';
 
 interface UserManagementViewModel {
@@ -27,19 +26,37 @@ export function AdminUserManagement() {
   const [filter, setFilter] = useState<'all' | 'pending_vendors'>('all');
   const { toast } = useToast();
 
-  // Cargar usuarios reales desde Firestore
+  // Load mock users
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'users'), (snapshot) => {
-      const userData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as UserManagementViewModel[];
-      
-      setUsers(userData);
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe();
+    const mockUsers: UserManagementViewModel[] = [
+      {
+        id: '1',
+        name: 'Juan Pérez',
+        email: 'juan@example.com',
+        role: 'buyer',
+        isApproved: true,
+        createdAt: '2024-01-15'
+      },
+      {
+        id: '2',
+        name: 'María González',
+        email: 'maria@example.com',
+        role: 'seller',
+        isApproved: true,
+        createdAt: '2024-01-20'
+      },
+      {
+        id: '3',
+        name: 'Carlos Rodríguez',
+        email: 'carlos@example.com',
+        role: 'pending_vendor',
+        isApproved: false,
+        createdAt: '2024-01-25'
+      }
+    ];
+    
+    setUsers(mockUsers);
+    setIsLoading(false);
   }, []);
 
   // Filtrar usuarios según la selección
@@ -66,37 +83,28 @@ export function AdminUserManagement() {
         throw new Error('Usuario no encontrado');
       }
 
-      // Actualizar en Firestore
-      await updateDoc(doc(db, 'users', userId), {
-        ...updates,
-        updatedAt: new Date().toISOString()
-      });
+      // Mock update user
+      setUsers(prev => prev.map(user => 
+        user.id === userId ? { ...user, ...updates } : user
+      ));
 
-      // Enviar notificaciones apropiadas
+      // Show success notifications
       if (updates.role === 'seller' && updates.isApproved === true) {
-        // Vendedor aprobado
-        await notificationService.notifyVendorApproved(userId, currentUser.name);
         toast({
           title: "Vendedor aprobado",
-          description: `${currentUser.name} ha sido aprobado como vendedor y notificado`,
+          description: `${currentUser.name} ha sido aprobado como vendedor`,
         });
       } else if (updates.isApproved === false && currentUser.role === 'pending_vendor') {
-        // Vendedor rechazado
-        await notificationService.notifyVendorRejected(userId, currentUser.name);
         toast({
           title: "Solicitud rechazada",
-          description: `La solicitud de ${currentUser.name} ha sido rechazada y se le ha notificado`,
+          description: `La solicitud de ${currentUser.name} ha sido rechazada`,
         });
       } else if (updates.isApproved === false && currentUser.isApproved === true) {
-        // Cuenta suspendida
-        await notificationService.notifyAccountSuspended(userId, currentUser.name);
         toast({
           title: "Cuenta suspendida",
           description: `La cuenta de ${currentUser.name} ha sido suspendida`,
         });
       } else if (updates.isApproved === true && currentUser.isApproved === false) {
-        // Cuenta reactivada
-        await notificationService.notifyAccountReactivated(userId, currentUser.name);
         toast({
           title: "Cuenta reactivada",
           description: `La cuenta de ${currentUser.name} ha sido reactivada`,

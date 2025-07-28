@@ -15,6 +15,8 @@ interface AuthContextType {
   user: UserProfile | null;
   isLoading: boolean;
   error: string | null;
+  logout: () => void;
+  updateUser: (user: UserProfile) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,10 +34,28 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const logout = () => {
+    // Mock logout functionality
+    console.log('Logout called');
+  };
+
+  const updateUser = (user: UserProfile) => {
+    // Mock update user functionality
+    console.log('Update user called:', user);
+  };
+
   const value: AuthContextType = {
-    user: null,
+    user: {
+      id: '1',
+      email: 'demo@example.com',
+      name: 'Usuario Demo',
+      role: 'buyer',
+      isApproved: true,
+    },
     isLoading: false,
     error: null,
+    logout,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

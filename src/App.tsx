@@ -5,8 +5,8 @@ import { FavoritesProvider } from '@/contexts/FavoritesContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { Toaster } from '@/components/ui/toaster';
 import { Layout } from '@/components/Layout/Layout';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { CookieConsent } from '@/components/CookieConsent';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import CookieConsent from '@/components/CookieConsent';
 
 // Pages
 import Index from './pages/Index';
@@ -15,9 +15,9 @@ import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
-import OrderHistory from './pages/OrderHistory';
-import ProfileSettings from './pages/ProfileSettings';
-import AddressBook from './pages/AddressBook';
+import { OrderHistory } from './pages/OrderHistory';
+import { ProfileSettings } from './pages/ProfileSettings';
+import { AddressBook } from './pages/AddressBook';
 import Messages from './pages/Messages';
 import SupportCenter from './pages/SupportCenter';
 import About from './pages/About';
@@ -29,10 +29,10 @@ import SellerDashboard from './pages/SellerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 
 // Admin pages
-import AdminUserManagement from './pages/AdminUserManagement';
-import ProductManagement from './pages/ProductManagement';
-import OrderManagement from './pages/OrderManagement';
-import ProductForm from './pages/ProductForm';
+import { AdminUserManagement } from './pages/AdminUserManagement';
+import { ProductManagement } from './pages/ProductManagement';
+import { OrderManagement } from './pages/OrderManagement';
+import { ProductForm } from './pages/ProductForm';
 import ProductModeration from './pages/ProductModeration';
 import PaymentManagement from './pages/PaymentManagement';
 import ContentManagement from './pages/ContentManagement';
@@ -40,7 +40,7 @@ import PlatformConfiguration from './pages/PlatformConfiguration';
 import AuditSystem from './pages/AuditSystem';
 import ReviewSystem from './pages/ReviewSystem';
 import OrderTrackingSystem from './pages/OrderTrackingSystem';
-import FinancialDashboard from './pages/FinancialDashboard';
+import { FinancialDashboard } from './pages/FinancialDashboard';
 import NotificationCenter from './pages/NotificationCenter';
 import AdminReports from './pages/AdminReports';
 
