@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import { UserRole } from '@/types/user.types';
 import { Loader2, User, Mail, Lock, Phone, MapPin, Store, FileText, Sparkles } from 'lucide-react';
 
@@ -16,6 +17,7 @@ export const Register = () => {
   const [selectedRole, setSelectedRole] = useState<UserRole>('buyer');
   const [isLoading, setIsLoading] = useState(false);
   const { register, error, clearError } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   // Form data
@@ -69,12 +71,14 @@ export const Register = () => {
         bio: selectedRole === 'seller' ? formData.bio : undefined
       });
       
-      // Redirect based on role
-      if (selectedRole === 'seller') {
-        navigate('/pending-approval');
-      } else {
-        navigate('/');
-      }
+      // Show success message about email verification
+      toast({
+        title: "¡Cuenta creada exitosamente!",
+        description: `Hemos enviado un correo de verificación a ${formData.email}. Por favor, verifica tu email antes de iniciar sesión.`,
+      });
+      
+      // Redirect to email verification page
+      navigate('/verify-email');
     } catch (err) {
       // Error handled by context
     } finally {

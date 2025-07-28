@@ -49,6 +49,9 @@ import { FinancialDashboard } from './pages/FinancialDashboard';
 import NotificationCenter from './pages/NotificationCenter';
 import AdminReports from './pages/AdminReports';
 import LayoutDemo from './pages/LayoutDemo';
+import EmailVerification from './pages/EmailVerification';
+import AuthAction from './pages/AuthAction';
+import ForgotPassword from './pages/ForgotPassword';
 
 // Components
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -75,10 +78,11 @@ function App() {
 
                     {/* Auth routes */}
                     <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/pending-approval" element={<PendingApproval />} />
-
-                    {/* Protected routes - Require authentication */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-email" element={<EmailVerification />} />
+          <Route path="/auth/action" element={<AuthAction />} />
+          <Route path="/pending-approval" element={<PendingApproval />} />                    {/* Protected routes - Require authentication */}
                     <Route path="/cart" element={
                       <ProtectedRoute>
                         <Cart />

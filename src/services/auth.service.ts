@@ -3,6 +3,7 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   sendEmailVerification,
+  sendPasswordResetEmail,
   User
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -61,7 +62,14 @@ export class AuthService {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // 2. Obtener perfil de Firestore
+      // 2. Verificar si el email está verificado
+      if (!user.emailVerified) {
+        // Reenviar email de verificación
+        await sendEmailVerification(user);
+        throw new Error('Por favor verifica tu email. Hemos reenviado el correo de verificación.');
+      }
+
+      // 3. Obtener perfil de Firestore
       const userProfile = await this.getUserProfile(user.uid);
       
       if (!userProfile) {
@@ -124,5 +132,9 @@ export class AuthService {
     }
   }
 }
+
+export const sendPasswordReset = async (email: string): Promise<void> => {
+  await sendPasswordResetEmail(auth, email);
+};
 
 export const authService = new AuthService();
