@@ -6,8 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Header } from '@/components/Layout/Header';
-import { Footer } from '@/components/Layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
@@ -125,9 +123,7 @@ const Checkout = () => {
 
   if (!user || user.role !== 'buyer') {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
+      <div><div className="container mx-auto px-4 py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Restringido</h2>
@@ -144,9 +140,7 @@ const Checkout = () => {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
+      <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold mb-4">Carrito Vacío</h2>
@@ -162,10 +156,7 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button
@@ -457,9 +448,7 @@ const Checkout = () => {
             </Card>
           </div>
         </div>
-      </div>
-      <Footer />
-    </div>
+      </div></div>
   );
 };
 

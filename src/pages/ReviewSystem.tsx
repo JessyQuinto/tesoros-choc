@@ -11,8 +11,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Header } from '@/components/Layout/Header';
-import { Footer } from '@/components/Layout/Footer';
 import { 
   Star, 
   MessageSquare, 
@@ -180,10 +178,7 @@ export const ReviewSystem = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div><div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Sistema de Reseñas</h1>
           <p className="text-muted-foreground">
@@ -392,10 +387,7 @@ export const ReviewSystem = () => {
             )}
           </DialogContent>
         </Dialog>
-      </div>
-      
-      <Footer />
-    </div>
+      </div></div>
   );
 };
 

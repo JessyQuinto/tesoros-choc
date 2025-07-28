@@ -7,8 +7,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Header } from '@/components/Layout/Header';
-import { Footer } from '@/components/Layout/Footer';
 import { 
   Package, 
   Truck, 
@@ -215,10 +213,7 @@ export const OrderTrackingSystem = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div><div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">
             {user?.role === 'seller' ? 'Gestión de Pedidos' : 'Mis Pedidos'}
@@ -471,10 +466,7 @@ export const OrderTrackingSystem = () => {
             )}
           </DialogContent>
         </Dialog>
-      </div>
-      
-      <Footer />
-    </div>
+      </div></div>
   );
 };
 

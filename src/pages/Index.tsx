@@ -3,8 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { Header } from '@/components/Layout/Header';
-import { Footer } from '@/components/Layout/Footer';
 import { Search, ShoppingBag, Star, MapPin, Heart, Sparkles, ArrowRight, Users, Package, TrendingUp } from 'lucide-react';
 import heroImage from '@/assets/hero-choco.jpg';
 
@@ -61,10 +59,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      {/* Hero Section Premium - Completamente Responsivo */}
+    <div>{/* Hero Section Premium - Completamente Responsivo */}
       <section className="hero-section min-h-[80vh] sm:min-h-[85vh] lg:min-h-[90vh] flex items-center">
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/70 to-transparent z-10"></div>
         <div 
@@ -327,10 +322,7 @@ const Index = () => {
             </Button>
           </div>
         </div>
-      </section>
-      
-      <Footer />
-    </div>
+      </section></div>
   );
 };
 

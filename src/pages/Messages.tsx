@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
-import { Header } from '@/components/Layout/Header';
 import { useToast } from '@/hooks/use-toast';
 import { Send, Search, MessageCircle, User, Clock } from 'lucide-react';
 
@@ -164,9 +163,7 @@ const Messages = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
+      <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold mb-4">Inicia Sesión</h2>
@@ -179,10 +176,7 @@ const Messages = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Mensajes</h1>
           <p className="text-muted-foreground">Comunícate con compradores y vendedores</p>

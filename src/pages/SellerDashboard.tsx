@@ -3,8 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { Header } from '@/components/Layout/Header';
-import { Footer } from '@/components/Layout/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { Plus, Package, DollarSign, TrendingUp, Edit, Eye, AlertCircle, CheckCircle, ShoppingCart, BarChart3, Settings, CreditCard } from 'lucide-react';
@@ -74,9 +72,7 @@ const SellerDashboard = () => {
 
   if (user?.role !== 'seller') {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
+      <div><div className="container mx-auto px-4 py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
@@ -89,10 +85,7 @@ const SellerDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Panel de Vendedor</h1>
           <p className="text-muted-foreground">Gestiona tus productos y ventas</p>
@@ -385,10 +378,7 @@ const SellerDashboard = () => {
             </Card>
           </div>
         </div>
-      </div>
-      
-      <Footer />
-    </div>
+      </div></div>
   );
 };
 

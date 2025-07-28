@@ -10,8 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useAuth } from '@/contexts/AuthContext';
-import { Header } from '@/components/Layout/Header';
-import { Footer } from '@/components/Layout/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { 
   HelpCircle,
@@ -461,9 +459,7 @@ const SupportCenter = () => {
 
   if (user?.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
+      <div><div className="container mx-auto px-4 py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
@@ -476,10 +472,7 @@ const SupportCenter = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-2">Centro de Soporte</h1>
@@ -979,10 +972,7 @@ const SupportCenter = () => {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
-      
-      <Footer />
-    </div>
+      </div></div>
   );
 };
 

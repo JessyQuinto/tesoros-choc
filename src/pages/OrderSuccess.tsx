@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Header } from '@/components/Layout/Header';
 import { CheckCircle, Package, Download, MessageCircle } from 'lucide-react';
 
 const OrderSuccess = () => {
@@ -24,10 +23,7 @@ const OrderSuccess = () => {
   }, [location.state, navigate]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           {/* Success Message */}
           <Card className="mb-8">

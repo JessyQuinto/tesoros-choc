@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Header } from '@/components/Layout/Header';
-import { Footer } from '@/components/Layout/Footer';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
@@ -218,10 +216,7 @@ const Products = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container-max py-8 sm:py-12">
+    <div><div className="container-max py-8 sm:py-12">
         {/* Hero Section Premium */}
         <div className="mb-12 text-center space-y-4">
           <Badge className="bg-gradient-to-r from-primary to-secondary text-white border-0 px-6 py-3 text-base font-medium rounded-full shadow-lg mb-6">
@@ -424,10 +419,7 @@ const Products = () => {
             ))
           )}
         </div>
-      </div>
-      
-      <Footer />
-    </div>
+      </div></div>
   );
 };
 

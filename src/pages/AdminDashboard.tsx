@@ -4,8 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuth } from '@/contexts/AuthContext';
-import { Header } from '@/components/Layout/Header';
-import { Footer } from '@/components/Layout/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { CheckCircle, XCircle, Users, Package, DollarSign, TrendingUp, Eye, BarChart3, Settings, UserCheck, FileText, MessageSquare, Shield, Cog, Activity, CreditCard } from 'lucide-react';
@@ -58,24 +56,19 @@ const AdminDashboard = () => {
 
   if (user?.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
-          <Card>
-            <CardContent className="p-8 text-center">
-              <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
-              <p>No tienes permisos para acceder al panel administrativo.</p>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="container mx-auto px-4 py-8">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
+            <p>No tienes permisos para acceder al panel administrativo.</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
+    <div>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Panel de Administración</h1>
@@ -331,8 +324,6 @@ const AdminDashboard = () => {
           </Button>
         </div>
       </div>
-      
-      <Footer />
     </div>
   );
 };

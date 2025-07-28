@@ -11,8 +11,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useNotifications } from '@/contexts/NotificationContext';
-import { Header } from '@/components/Layout/Header';
-import { Footer } from '@/components/Layout/Footer';
 import { 
   DollarSign, 
   TrendingUp, 
@@ -267,25 +265,19 @@ export const FinancialDashboard = () => {
 
   if (user?.role !== 'seller') {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
+      <div><div className="container mx-auto px-4 py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
               <p>Esta área está reservada para vendedores.</p>
             </CardContent>
           </Card>
-        </div>
-        <Footer />
-      </div>
+        </div></div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <div className="container mx-auto px-4 py-8">
+    <div><div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -576,8 +568,6 @@ export const FinancialDashboard = () => {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
-      <Footer />
-    </div>
+      </div></div>
   );
 };

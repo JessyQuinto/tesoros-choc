@@ -5,8 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
-import { Header } from '@/components/Layout/Header';
-import { Footer } from '@/components/Layout/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { 
   BarChart3,
@@ -244,24 +242,19 @@ const AdminReports = () => {
 
   if (user?.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
-          <Card>
-            <CardContent className="p-8 text-center">
-              <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
-              <p>Esta área está reservada para administradores.</p>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="container mx-auto px-4 py-8">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
+            <p>Esta área está reservada para administradores.</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
+    <div>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -610,8 +603,6 @@ const AdminReports = () => {
           </TabsContent>
         </Tabs>
       </div>
-      
-      <Footer />
     </div>
   );
 };

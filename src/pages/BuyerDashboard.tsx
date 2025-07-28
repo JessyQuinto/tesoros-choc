@@ -3,8 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { Header } from '@/components/Layout/Header';
-import { Footer } from '@/components/Layout/Footer';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Heart, Star, Package, TrendingUp, Eye, Filter, History, MapPin, Settings, User, CreditCard, MessageCircle } from 'lucide-react';
 
@@ -14,9 +12,7 @@ const BuyerDashboard = () => {
   // Protección de acceso - Solo compradores
   if (!user || user.role !== 'buyer') {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
+      <div><div className="container mx-auto px-4 py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
@@ -89,10 +85,7 @@ const BuyerDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">¡Hola, {user?.name}!</h1>
           <p className="text-muted-foreground">Descubre los tesoros artesanales del Chocó</p>
@@ -372,10 +365,7 @@ const BuyerDashboard = () => {
             Historial de Pedidos
           </Button>
         </div>
-      </div>
-      
-      <Footer />
-    </div>
+      </div></div>
   );
 };
 

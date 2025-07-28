@@ -10,8 +10,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
-import { Header } from '@/components/Layout/Header';
-import { Footer } from '@/components/Layout/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, 
@@ -248,9 +246,7 @@ export const ProductManagement = () => {
 
   if (user?.role !== 'seller') {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
+      <div><div className="container mx-auto px-4 py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Denegado</h2>
@@ -263,10 +259,7 @@ export const ProductManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="min-h-screen bg-background"><div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -769,9 +762,6 @@ export const ProductManagement = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
-      
-      <Footer />
-    </div>
+      </div></div>
   );
 };

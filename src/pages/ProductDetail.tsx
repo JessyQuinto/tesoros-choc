@@ -4,8 +4,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Header } from '@/components/Layout/Header';
-import { Footer } from '@/components/Layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
@@ -144,10 +142,7 @@ Cada cesta es única debido a la naturaleza artesanal del proceso. Las pequeñas
   const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8">
+    <div><div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-6 text-sm text-muted-foreground">
           <Button
@@ -427,9 +422,7 @@ Cada cesta es única debido a la naturaleza artesanal del proceso. Las pequeñas
             </div>
           </div>
         </div>
-      </div>
-      <Footer />
-    </div>
+      </div></div>
   );
 };
 
