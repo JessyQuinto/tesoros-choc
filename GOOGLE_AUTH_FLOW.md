@@ -1,77 +1,102 @@
-# Flujo de Autenticación con Google - Correcciones Implementadas
+# Flujo de Autenticación Corregido - Separación de Pasos
 
-## Problema Identificado
-La autenticación con Google estaba mal implementada porque:
-1. El botón de Google aparecía en ambas pestañas (Login/Registro) pero usaba la misma función
-2. No manejaba la creación de nuevos usuarios con Google
-3. Los usuarios nuevos quedaban en estado inconsistente (autenticados pero sin perfil)
+## Problema Original
+El flujo estaba creando cuentas con datos "quemados" (hardcodeados) en lugar de seguir el proceso correcto de:
+1. Autenticación → 2. Selección de rol → 3. Completar perfil → 4. Crear en Firestore
 
-## Soluciones Implementadas
+## Nuevo Flujo Implementado
 
-### 1. Método `loginWithGoogle` Mejorado
-- Ahora acepta parámetros `isRegistering` y `role`
-- Detecta si el usuario es nuevo o existente
-- Para usuarios nuevos durante registro: crea perfil completo con rol seleccionado
-- Para usuarios existentes: carga perfil existente
-- Para usuarios nuevos durante login: redirige a selección de rol
+### 📝 Registro con Formulario
+1. **Formulario de registro**: Solo nombre, email, contraseña (SIN selección de rol)
+2. **Autenticación Firebase**: Crea cuenta en Firebase Auth + displayName
+3. **Redirección**: `/select-role`
+4. **Selección de rol**: Comprador/Vendedor
+5. **Creación de perfil**: Se crea documento completo en Firestore
+6. **Redirección final**: 
+   - Comprador → `/complete-profile`
+   - Vendedor → `/pending-approval`
 
-### 2. Flujo de Registro con Google
-- Valida que se haya seleccionado un rol antes de continuar
-- Crea perfil completo en Firestore con todos los campos necesarios
-- Maneja correctamente vendedores (rol `pending_vendor`)
+### 🔑 Registro/Login con Google
+1. **Autenticación Google**: Solo autentica con Google
+2. **Verificación**: ¿Existe perfil en Firestore?
+   - **Sí existe** → Login normal, redirige a dashboard
+   - **No existe** → Usuario nuevo, redirige a `/select-role`
+3. **Selección de rol**: Comprador/Vendedor (mismo flujo que formulario)
+4. **Resto igual** que el flujo de formulario
 
-### 3. Componentes de UI Mejorados
-- Botones de Google ahora muestran texto diferente según el contexto
-- "Iniciar sesión con Google" vs "Crear cuenta con Google"
-- Validación visual del rol seleccionado antes de permitir Google
+### 📋 Completar Perfil (Nueva página)
+- **Campos opcionales**: Teléfono, dirección, biografía
+- **Opción "Omitir"**: Puede completar después
+- **Persistencia**: Se guarda en Firestore
+- **Redirección**: Dashboard apropiado
 
-### 4. Redirecciones Corregidas
-- `AuthRedirectHandler` ahora usa `/select-role` en lugar de `/complete-profile`
-- Maneja correctamente usuarios que necesitan seleccionar rol
-- Redirige apropiadamente según el rol del usuario
+## Métodos Actualizados
 
-### 5. Manejo de Errores Mejorado
-- Reemplazado `any` con tipos específicos de Firebase (`AuthError`)
-- Mejor logging y manejo de errores
-- Mensajes de error más descriptivos
+### `AuthContext.tsx`
+- ✅ `register()`: Solo crea cuenta Firebase (sin rol, sin Firestore)
+- ✅ `loginWithGoogle()`: Simplificado, solo autentica
+- ✅ `createUserProfile()`: NUEVO - Crea perfil completo en Firestore
+- ✅ `updateUser()`: Actualiza perfil existente
 
-## Flujo Completo Ahora
+### `AuthPage.tsx`
+- ✅ Formulario registro sin selección de rol
+- ✅ Botones Google sin lógica de rol
+- ✅ Redirecciones apropiadas
 
-### Registro con Google:
-1. Usuario va a pestaña "Crear Cuenta"
-2. Selecciona rol (buyer/seller)
-3. Hace clic en "Crear cuenta con Google"
-4. Sistema valida que hay rol seleccionado
-5. Autentica con Google
-6. Crea perfil completo en Firestore
-7. Redirige según rol:
-   - Buyer → Dashboard de comprador
-   - Seller → Página de aprobación pendiente
+### `SelectRolePage.tsx`
+- ✅ Usa `createUserProfile()` en lugar de `updateUser()`
+- ✅ Crea perfil completo con rol seleccionado
+- ✅ Redirige a completar perfil o aprobación
 
-### Login con Google (Usuario Existente):
-1. Usuario hace clic en "Iniciar sesión con Google"
-2. Autentica con Google
-3. Carga perfil existente
-4. Redirige a dashboard apropiado
+### `CompleteProfilePage.tsx` (NUEVO)
+- ✅ Formulario para información adicional opcional
+- ✅ Opción de omitir y completar después
+- ✅ Actualiza perfil existente
 
-### Login con Google (Usuario Nuevo):
-1. Usuario hace clic en "Iniciar sesión con Google"
-2. Autentica con Google
-3. Detecta que no tiene perfil
-4. Redirige a `/select-role`
-5. Usuario selecciona rol
-6. Crea perfil completo
-7. Redirige según rol
+## Estados del Usuario
+
+### 1. **Solo Firebase Auth** (needsRoleSelection: true)
+- Autenticado en Firebase
+- Sin documento en Firestore
+- Redirige a `/select-role`
+
+### 2. **Perfil Básico Creado** (needsRoleSelection: false)
+- Documento en Firestore con rol
+- Puede tener campos opcionales vacíos
+- Acceso completo a la app
+
+### 3. **Perfil Completo**
+- Toda la información incluida
+- Experiencia personalizada completa
+
+## Rutas y Redirecciones
+
+```
+/register → /select-role → /complete-profile → /dashboard
+/login-google (nuevo) → /select-role → /complete-profile → /dashboard  
+/login-google (existente) → /dashboard
+/login-form → /dashboard
+```
+
+## Ventajas del Nuevo Flujo
+
+✅ **Separación clara**: Cada paso tiene una responsabilidad específica
+✅ **Datos reales**: No más información hardcodeada
+✅ **Flexibilidad**: Usuarios pueden omitir información opcional
+✅ **Consistencia**: Mismo flujo para formulario y Google
+✅ **UX mejorada**: Pasos claros y progresivos
+✅ **Mantenibilidad**: Código más limpio y modular
 
 ## Archivos Modificados
-- `src/contexts/AuthContext.tsx`
-- `src/pages/AuthPage.tsx` 
-- `src/pages/SelectRolePage.tsx`
-- `src/components/AuthRedirectHandler.tsx`
+- `src/contexts/AuthContext.tsx` - Métodos de autenticación
+- `src/pages/AuthPage.tsx` - Formularios simplificados  
+- `src/pages/SelectRolePage.tsx` - Creación de perfil con rol
+- `src/pages/CompleteProfilePage.tsx` - NUEVO - Completar información
+- `src/App.tsx` - Nueva ruta para completar perfil
 
 ## Estado Actual
-✅ Flujo de registro con Google completamente funcional
-✅ Validación de rol antes de autenticación
-✅ Creación completa de perfiles de usuario
-✅ Redirecciones apropiadas según el rol
-✅ Manejo mejorado de errores TypeScript
+✅ Flujo de registro paso a paso implementado
+✅ Separación correcta de responsabilidades  
+✅ Sin datos hardcodeados
+✅ Experiencia de usuario mejorada
+✅ Compatible con formulario y Google

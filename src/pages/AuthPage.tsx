@@ -25,9 +25,6 @@ const registerSchema = z.object({
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
   confirmPassword: z.string().min(6, 'Confirmar contraseña es requerido'),
-  role: z.enum(['buyer', 'seller'], {
-    required_error: 'Debes seleccionar un tipo de cuenta',
-  }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"],
@@ -56,8 +53,7 @@ export function AuthPage() {
       name: '', 
       email: '', 
       password: '', 
-      confirmPassword: '',
-      role: (preselectedRole === 'buyer' || preselectedRole === 'seller') ? preselectedRole : 'buyer'
+      confirmPassword: ''
     },
   });
 
@@ -75,35 +71,18 @@ export function AuthPage() {
   };
 
   const onRegister = async (values: z.infer<typeof registerSchema>) => {
-    const success = await register(values.email, values.password, values.name, values.role);
+    const success = await register(values.email, values.password, values.name);
     
     if (success) {
       toast({
         title: "¡Cuenta creada!",
-        description: values.role === 'seller' 
-          ? "Tu cuenta se creó exitosamente. Como vendedor, necesitas aprobación del administrador para publicar productos."
-          : "Tu cuenta se creó exitosamente. ¡Bienvenido a Tesoros Chocó!"
+        description: "Tu cuenta se creó exitosamente. Ahora necesitas completar tu perfil."
       });
     }
   };
   
   const onGoogleSignIn = async () => {
-    // Si está en la pestaña de registro, necesitamos el rol
-    if (activeTab === 'register') {
-      const selectedRole = registerForm.getValues('role');
-      if (!selectedRole) {
-        toast({
-          title: 'Selecciona un tipo de cuenta',
-          description: 'Debes elegir si quieres ser comprador o vendedor antes de continuar con Google.',
-          variant: 'destructive',
-        });
-        return;
-      }
-      await loginWithGoogle(true, selectedRole);
-    } else {
-      // Es un login normal
-      await loginWithGoogle(false);
-    }
+    await loginWithGoogle();
   };
   
   // Efecto para manejar la redirección post-autenticación
@@ -198,38 +177,6 @@ export function AuthPage() {
                     <FormItem>
                       <FormLabel>Confirmar Contraseña</FormLabel>
                       <FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={registerForm.control} name="role" render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Tipo de cuenta</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          className="space-y-2"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="buyer" id="buyer" />
-                            <Label htmlFor="buyer" className="flex-1 cursor-pointer">
-                              <div>
-                                <p className="font-medium">Comprador</p>
-                                <p className="text-sm text-muted-foreground">Busca y compra productos artesanales</p>
-                              </div>
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="seller" id="seller" />
-                            <Label htmlFor="seller" className="flex-1 cursor-pointer">
-                              <div>
-                                <p className="font-medium">Vendedor</p>
-                                <p className="text-sm text-muted-foreground">Vende tus productos artesanales (requiere aprobación)</p>
-                              </div>
-                            </Label>
-                          </div>
-                        </RadioGroup>
-                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />

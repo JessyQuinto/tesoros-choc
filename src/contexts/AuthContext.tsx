@@ -26,6 +26,9 @@ export interface UserProfile {
   isApproved: boolean;
   avatar: string | null;
   needsRoleSelection: boolean;
+  phone?: string;
+  address?: string;
+  bio?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -34,10 +37,11 @@ interface AuthContextType {
   user: UserProfile | null;
   firebaseUser: FirebaseUser | null;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string, name: string, role: UserRole) => Promise<boolean>;
+  register: (email: string, password: string, name: string) => Promise<boolean>;
   loginWithGoogle: (isRegistering?: boolean, role?: UserRole) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUser: (data: Partial<UserProfile>) => Promise<void>;
+  createUserProfile: (userData: Omit<UserProfile, 'id' | 'firebaseUid' | 'createdAt' | 'updatedAt'>) => Promise<boolean>;
   resetPassword: (email: string) => Promise<void>;
   isLoading: boolean;
   error: string | null;
@@ -117,30 +121,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const register = async (email: string, password: string, name: string, role: UserRole): Promise<boolean> => {
+  const register = async (email: string, password: string, name: string): Promise<boolean> => {
     setIsLoading(true);
     clearError();
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
       
+      // Solo actualizar el displayName en Firebase Auth
       await updateProfile(firebaseUser, { displayName: name });
       
-      // Create user document in Firestore
-      const userProfile: UserProfile = {
-        id: firebaseUser.uid,
-        firebaseUid: firebaseUser.uid,
-        email: firebaseUser.email || '',
-        name: name,
-        role: role === 'seller' ? 'pending_vendor' : role, // Sellers need approval
-        isApproved: role === 'buyer' || role === 'admin',
-        avatar: firebaseUser.photoURL,
-        needsRoleSelection: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      // NO crear el documento en Firestore todavía
+      // El usuario necesita seleccionar rol y completar perfil
+      setNeedsRoleSelection(true);
+      setUser(null);
       
-      await setDoc(doc(db, 'users', firebaseUser.uid), userProfile);
       return true;
     } catch (error) {
       const authError = error as AuthError;
@@ -150,7 +145,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const loginWithGoogle = async (isRegistering: boolean = false, role?: UserRole): Promise<boolean> => {
+  const loginWithGoogle = async (isRegistering: boolean = false): Promise<boolean> => {
     setIsLoading(true);
     clearError();
     try {
@@ -162,30 +157,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
       
       if (!userDoc.exists()) {
-        // New user - create profile
-        if (isRegistering && role) {
-          // Creating new account with specified role
-          const userProfile: UserProfile = {
-            id: firebaseUser.uid,
-            firebaseUid: firebaseUser.uid,
-            email: firebaseUser.email || '',
-            name: firebaseUser.displayName || '',
-            role: role === 'seller' ? 'pending_vendor' : role,
-            isApproved: role === 'buyer' || role === 'admin',
-            avatar: firebaseUser.photoURL,
-            needsRoleSelection: false,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          };
-          
-          await setDoc(doc(db, 'users', firebaseUser.uid), userProfile);
-          setUser(userProfile);
-          setNeedsRoleSelection(false);
-        } else {
-          // User logging in but doesn't exist - needs role selection
-          setNeedsRoleSelection(true);
-          setUser(null);
-        }
+        // New user - needs to complete profile setup
+        setNeedsRoleSelection(true);
+        setUser(null);
       } else {
         // Existing user - load profile
         const userData = userDoc.data() as UserProfile;
@@ -213,6 +187,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Logout error:', error);
       setError('Error al cerrar sesión');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const createUserProfile = async (userData: Omit<UserProfile, 'id' | 'firebaseUid' | 'createdAt' | 'updatedAt'>): Promise<boolean> => {
+    if (!firebaseUser) {
+      setError('No hay usuario autenticado');
+      return false;
+    }
+    
+    setIsLoading(true);
+    try {
+      const userProfile: UserProfile = {
+        id: firebaseUser.uid,
+        firebaseUid: firebaseUser.uid,
+        ...userData,
+        role: userData.role === 'seller' ? 'pending_vendor' : userData.role,
+        isApproved: userData.role === 'buyer' || userData.role === 'admin',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      await setDoc(doc(db, 'users', firebaseUser.uid), userProfile);
+      setUser(userProfile);
+      setNeedsRoleSelection(false);
+      
+      return true;
+    } catch (error) {
+      console.error('Error creating user profile:', error);
+      setError('Error al crear el perfil del usuario');
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -279,6 +285,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loginWithGoogle,
     logout,
     updateUser,
+    createUserProfile,
     resetPassword,
     isLoading,
     error,

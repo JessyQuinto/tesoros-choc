@@ -11,7 +11,7 @@ type Role = 'buyer' | 'seller';
 
 export function SelectRolePage() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const { updateUser, isLoading, firebaseUser } = useAuth();
+  const { createUserProfile, isLoading, firebaseUser } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -27,33 +27,31 @@ export function SelectRolePage() {
 
     try {
       // Create complete user profile
-      const userProfile = {
-        id: firebaseUser.uid,
-        firebaseUid: firebaseUser.uid,
+      const userProfileData = {
         email: firebaseUser.email || '',
         name: firebaseUser.displayName || '',
-        role: selectedRole === 'seller' ? 'pending_vendor' : selectedRole,
+        role: selectedRole,
         isApproved: selectedRole === 'buyer',
         avatar: firebaseUser.photoURL,
         needsRoleSelection: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
       };
 
-      await updateUser(userProfile);
+      const success = await createUserProfile(userProfileData);
       
-      toast({
-        title: '¡Perfil creado!',
-        description: selectedRole === 'seller' 
-          ? 'Tu cuenta como vendedor ha sido creada. Necesitas aprobación del administrador para publicar productos.'
-          : 'Tu cuenta como comprador ha sido creada. ¡Bienvenido a Tesoros Chocó!',
-      });
-      
-      // Redirect based on role
-      if (selectedRole === 'seller') {
-        navigate('/pending-approval');
-      } else {
-        navigate('/');
+      if (success) {
+        toast({
+          title: '¡Perfil creado!',
+          description: selectedRole === 'seller' 
+            ? 'Tu cuenta como vendedor ha sido creada. Necesitas aprobación del administrador para publicar productos.'
+            : 'Tu cuenta como comprador ha sido creada. ¡Bienvenido a Tesoros Chocó!',
+        });
+        
+        // Redirect based on role
+        if (selectedRole === 'seller') {
+          navigate('/pending-approval');
+        } else {
+          navigate('/complete-profile');
+        }
       }
     } catch (error) {
       console.error('Error creating profile:', error);

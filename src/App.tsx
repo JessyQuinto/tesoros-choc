@@ -48,6 +48,7 @@ import AuditSystem from "./pages/AuditSystem";
 import PaymentManagement from "./pages/PaymentManagement";
 import ProductModeration from "./pages/ProductModeration";
 import PendingApproval from "./pages/PendingApproval";
+import { CompleteProfilePage } from "./pages/CompleteProfilePage";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,11 @@ const App = () => (
                         <RoleSelectionRoute>
                           <SelectRolePage />
                         </RoleSelectionRoute>
+                      } />
+                      <Route path="/complete-profile" element={
+                        <ProtectedRoute allowedRoles={['buyer', 'seller', 'admin']}>
+                          <CompleteProfilePage />
+                        </ProtectedRoute>
                       } />
                       <Route path="/forgot-password" element={<ForgotPassword />} />
 
