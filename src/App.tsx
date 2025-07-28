@@ -48,6 +48,7 @@ import OrderTrackingSystem from './pages/OrderTrackingSystem';
 import { FinancialDashboard } from './pages/FinancialDashboard';
 import NotificationCenter from './pages/NotificationCenter';
 import AdminReports from './pages/AdminReports';
+import LayoutDemo from './pages/LayoutDemo';
 
 // Components
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -70,6 +71,7 @@ function App() {
                     <Route path="/products/:id" element={<ProductDetail />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/support" element={<SupportCenter />} />
+                    <Route path="/layout-demo" element={<LayoutDemo />} />
 
                     {/* Auth routes */}
                     <Route path="/login" element={<Login />} />
