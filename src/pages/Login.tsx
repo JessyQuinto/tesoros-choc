@@ -5,25 +5,33 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Mail, Lock, Sparkles, Eye, EyeOff, ArrowRight, Mountain } from 'lucide-react';
+import { Loader2, Mail, Lock, Sparkles, Eye, EyeOff, ArrowRight, Mountain, MailCheck } from 'lucide-react';
+import { useRef } from 'react';
+import EmailService from '@/services/EmailService';
+import { UserRole } from '@/types/user.types';
+
 
 export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationError, setVerificationError] = useState<string|null>(null);
   const { login, error, clearError, user } = useAuth();
   const navigate = useNavigate();
+  const emailInputRef = useRef<HTMLInputElement>(null);
 
   // Handle navigation after successful login
   useEffect(() => {
     if (user) {
-      if (user.role === 'seller' && !user.isApproved) {
+      if (user.role === 'vendedor' && !user.isApproved) {
         navigate('/pending-approval');
       } else if (user.role === 'admin') {
         navigate('/admin-dashboard');
-      } else if (user.role === 'seller' && user.isApproved) {
+      } else if (user.role === 'vendedor' && user.isApproved) {
         navigate('/seller-dashboard');
       } else {
         navigate('/');
@@ -31,23 +39,34 @@ export const Login = () => {
     }
   }, [user, navigate]);
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!email || !password) {
       return;
     }
-
     setIsLoading(true);
     clearError();
-
+    setVerificationSent(false);
+    setVerificationError(null);
     try {
       await login(email, password);
       // Navigation will be handled by useEffect when user state changes
     } catch (err) {
-      // Error is handled by context
+      // Si el error es de verificación de email, no hacer nada aquí, se maneja abajo
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setVerificationSent(false);
+    setVerificationError(null);
+    try {
+      await EmailService.sendCustomEmailVerification();
+      setVerificationSent(true);
+    } catch (err) {
+      setVerificationError('No se pudo reenviar el correo. Intenta de nuevo.');
     }
   };
 
@@ -83,7 +102,26 @@ export const Login = () => {
         </CardHeader>
         
         <CardContent className="space-y-8">
-          {error && (
+
+          {/* Mostrar error de email no verificado y botón para reenviar */}
+          {error && error.toLowerCase().includes('verifica tu email') ? (
+            <Alert variant="destructive" className="border-destructive/50 bg-destructive/5 flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <MailCheck className="h-5 w-5 text-destructive" />
+                <AlertDescription className="text-sm font-medium">{error}</AlertDescription>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-fit self-start mt-2"
+                onClick={handleResendVerification}
+                disabled={verificationSent}
+              >
+                {verificationSent ? 'Correo reenviado' : 'Reenviar correo de verificación'}
+              </Button>
+              {verificationError && <span className="text-xs text-destructive">{verificationError}</span>}
+            </Alert>
+          ) : error && (
             <Alert variant="destructive" className="border-destructive/50 bg-destructive/5">
               <AlertDescription className="text-sm font-medium">{error}</AlertDescription>
             </Alert>
@@ -151,13 +189,26 @@ export const Login = () => {
             </Button>
           </form>
 
-          <div className="text-center space-y-4">
+
+          <div className="text-center space-y-2">
             <Link 
               to="/forgot-password" 
               className="text-sm text-primary hover:text-primary/80 font-medium hover:underline transition-colors duration-200"
             >
               ¿Olvidaste tu contraseña?
             </Link>
+            <div>
+              <span className="text-xs text-muted-foreground">¿No recibiste el correo de verificación?</span>
+              <Button
+                type="button"
+                variant="link"
+                className="text-xs px-1 h-auto"
+                onClick={handleResendVerification}
+                disabled={verificationSent}
+              >
+                {verificationSent ? 'Correo reenviado' : 'Reenviar verificación'}
+              </Button>
+            </div>
           </div>
 
           <div className="relative">
