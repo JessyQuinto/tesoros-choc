@@ -24,22 +24,22 @@ Sistema de diseño inspirado en la naturaleza colombiana y la artesanía del Cho
 
     /* === PALETA PRINCIPAL - TESOROS DEL CHOCÓ === */
     /* Oro Chocoano - Color principal inspirado en el oro del Chocó */
-    --primary: 43 65% 45%; /* Dorado suave */
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 43 65% 40%;
-    --primary-light: 43 65% 85%;
+    --primary: 30 45% 35%; /* Café oscuro tierra */
+    --primary-foreground: 45 25% 95%;
+    --primary-hover: 30 45% 30%;
+    --primary-light: 30 25% 85%;
 
     /* Verde Selva - Secundario inspirado en la selva chocoana */
-    --secondary: 158 45% 42%; /* Verde esmeralda suave */
-    --secondary-foreground: 0 0% 100%;
-    --secondary-hover: 158 45% 38%;
-    --secondary-light: 158 45% 85%;
+    --secondary: 88 20% 25%; /* Verde oliva profundo */
+    --secondary-foreground: 45 25% 95%;
+    --secondary-hover: 88 20% 20%;
+    --secondary-light: 88 15% 85%;
 
     /* Terracota - Acento inspirado en la cerámica artesanal */
-    --accent: 15 65% 55%; /* Terracota suave */
-    --accent-foreground: 0 0% 100%;
-    --accent-hover: 15 65% 50%;
-    --accent-light: 15 65% 88%;
+    --accent: 15 35% 45%; /* Terracota tierra */
+    --accent-foreground: 45 25% 95%;
+    --accent-hover: 15 35% 40%;
+    --accent-light: 15 20% 88%;
 
     /* === COLORES NEUTROS MEJORADOS === */
     --muted: 210 40% 98%;
@@ -54,24 +54,24 @@ Sistema de diseño inspirado en la naturaleza colombiana y la artesanía del Cho
     --destructive-foreground: 210 40% 98%;
 
     /* === COLORES TEMÁTICOS DEL CHOCÓ === */
-    --choco-gold: 43 65% 45%; /* Oro suave */
-    --choco-emerald: 158 45% 42%; /* Esmeralda suave */
-    --choco-earth: 25 55% 38%; /* Tierra suave */
-    --choco-ocean: 203 60% 45%; /* Océano Pacífico suave */
-    --choco-coral: 15 65% 55%; /* Coral suave */
-    --choco-forest: 120 45% 30%; /* Bosque profundo suave */
+    --choco-gold: 43 25% 55%; /* Oro tierra */
+    --choco-emerald: 88 20% 25%; /* Esmeralda terrosa */
+    --choco-earth: 25 35% 30%; /* Tierra profunda */
+    --choco-ocean: 203 30% 35%; /* Océano Pacífico terroso */
+    --choco-coral: 15 35% 45%; /* Coral tierra */
+    --choco-forest: 120 25% 20%; /* Bosque profundo */
     --choco-cream: 45 25% 95%; /* Crema natural */
     
     /* Variables para Tailwind */
-    --choco-green: 158 45% 42%; /* Verde suave */
-    --choco-wood: 25 55% 38%; /* Madera suave */
+    --choco-green: 88 20% 25%; /* Verde oliva */
+    --choco-wood: 25 35% 30%; /* Madera tierra */
 
-    /* === GRADIENTES PREMIUM SUAVES === */
-    --gradient-hero: linear-gradient(135deg, hsl(43 65% 45%) 0%, hsl(158 45% 42%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(210 20% 96%) 100%);
-    --gradient-primary: linear-gradient(135deg, hsl(43 65% 45%) 0%, hsl(43 65% 40%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(158 45% 42%) 0%, hsl(158 45% 38%) 100%);
-    --gradient-sunset: linear-gradient(135deg, hsl(43 65% 45%) 0%, hsl(15 65% 55%) 50%, hsl(158 45% 42%) 100%);
+    /* === GRADIENTES PREMIUM TIERRA === */
+    --gradient-hero: linear-gradient(135deg, hsl(30 45% 35%) 0%, hsl(88 20% 25%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(45 25% 98%) 0%, hsl(30 15% 92%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(30 45% 35%) 0%, hsl(30 45% 30%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(88 20% 25%) 0%, hsl(88 20% 20%) 100%);
+    --gradient-earth: linear-gradient(135deg, hsl(30 45% 35%) 0%, hsl(15 35% 45%) 50%, hsl(88 20% 25%) 100%);
 
     /* === SOMBRAS MEJORADAS === */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -105,17 +105,17 @@ Sistema de diseño inspirado en la naturaleza colombiana y la artesanía del Cho
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 43 96% 56%;
-    --primary-foreground: 240 10% 3.9%;
+    --primary: 43 35% 65%; /* Oro tierra claro para dark mode */
+    --primary-foreground: 30 45% 15%;
 
-    --secondary: 158 64% 52%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 88 25% 35%; /* Verde oliva claro para dark mode */
+    --secondary-foreground: 45 25% 95%;
 
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
 
-    --accent: 15 86% 65%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 15 45% 55%; /* Terracota claro para dark mode */
+    --accent-foreground: 45 25% 95%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -143,17 +143,22 @@ Sistema de diseño inspirado en la naturaleza colombiana y la artesanía del Cho
   html {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     @apply antialiased;
+    scroll-behavior: smooth;
   }
 
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
     text-rendering: optimizeLegibility;
+    background-image: 
+      radial-gradient(circle at 25% 25%, hsl(var(--choco-gold) / 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, hsl(var(--choco-earth) / 0.02) 0%, transparent 50%);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', serif;
     @apply font-semibold tracking-tight;
+    color: hsl(var(--foreground));
   }
 
   /* Mejoras de accesibilidad */
@@ -171,38 +176,59 @@ Sistema de diseño inspirado en la naturaleza colombiana y la artesanía del Cho
 
 /* === SISTEMA DE COMPONENTES PREMIUM === */
 @layer components {
-  /* Botones mejorados */
+  /* Botones mejorados con tema africano */
   .btn-primary {
-    @apply bg-gradient-to-r from-primary to-primary text-primary-foreground font-medium px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0;
+    @apply bg-gradient-to-r from-primary to-primary-hover text-primary-foreground font-medium px-8 py-3 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0;
+    border: 1px solid hsl(var(--primary) / 0.2);
   }
 
   .btn-secondary {
-    @apply bg-gradient-to-r from-secondary to-secondary text-secondary-foreground font-medium px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5;
+    @apply bg-gradient-to-r from-secondary to-secondary-hover text-secondary-foreground font-medium px-8 py-3 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1;
+    border: 1px solid hsl(var(--secondary) / 0.2);
   }
 
   .btn-accent {
-    @apply bg-gradient-to-r from-accent to-accent text-accent-foreground font-medium px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5;
+    @apply bg-gradient-to-r from-accent to-accent-hover text-accent-foreground font-medium px-8 py-3 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1;
+    border: 1px solid hsl(var(--accent) / 0.2);
   }
 
   .btn-ghost {
-    @apply bg-transparent hover:bg-muted text-foreground font-medium px-6 py-3 rounded-xl transition-all duration-300;
+    @apply bg-transparent hover:bg-primary/10 text-foreground font-medium px-8 py-3 rounded-2xl transition-all duration-300 hover:shadow-md;
+    border: 1px solid hsl(var(--border));
   }
 
-  /* Tarjetas premium */
+  /* Tarjetas premium con inspiración africana */
   .card-premium {
-    @apply bg-gradient-to-br from-card to-muted border border-border/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1;
+    @apply bg-gradient-to-br from-card to-card/80 border border-border/30 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2;
+    backdrop-filter: blur(10px);
+    position: relative;
   }
 
-    .card-product {
-      overflow: hidden;
-      cursor: pointer;
-    }  .card-product:hover {
-    @apply shadow-2xl border-primary/20;
+  .card-premium::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 1.5rem;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.05) 0%, hsl(var(--secondary) / 0.05) 100%);
+    z-index: -1;
   }
 
-  /* Inputs mejorados */
+  .card-product {
+    @apply bg-card border border-border/20 rounded-3xl overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10;
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted) / 0.3) 100%);
+  }
+  
+  .card-product:hover {
+    @apply border-primary/30 transform -translate-y-1;
+  }
+
+  /* Inputs mejorados con tema tierra */
   .input-premium {
-    @apply bg-background border-2 border-border focus:border-primary rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground transition-all duration-300 focus:ring-4 focus:ring-primary/20;
+    @apply bg-background/50 border-2 border-border/50 focus:border-primary rounded-2xl px-6 py-4 text-foreground placeholder:text-muted-foreground transition-all duration-300 focus:ring-4 focus:ring-primary/20 focus:shadow-lg;
+    backdrop-filter: blur(10px);
   }
 
   /* Headers con gradiente */

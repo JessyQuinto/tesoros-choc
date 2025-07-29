@@ -27,9 +27,9 @@ const Products = () => {
     e.stopPropagation();
     
     toggleFavorite({
-      id: product.id,
+      id: String(product.id),
       name: product.name,
-      price: product.price,
+      price: Number(product.price),
       image: product.images[0] || '',
       seller: product.sellerName || 'Vendedor',
       location: '', // El backend no maneja ubicación aún
@@ -37,8 +37,8 @@ const Products = () => {
     });
     
     toast({
-      title: isFavorite(product.id) ? "Eliminado de favoritos" : "Agregado a favoritos",
-      description: `${product.name} ${isFavorite(product.id) ? 'se eliminó de' : 'se agregó a'} tus favoritos`
+      title: isFavorite(String(product.id)) ? "Eliminado de favoritos" : "Agregado a favoritos",
+      description: `${product.name} ${isFavorite(String(product.id)) ? 'se eliminó de' : 'se agregó a'} tus favoritos`
     });
   };
 
@@ -328,10 +328,10 @@ const Products = () => {
                     >
                       <Heart 
                         className={`w-4 h-4 transition-colors ${
-                          isFavorite(product.id) 
+                          isFavorite(String(product.id)) 
                             ? 'fill-red-500 text-red-500' 
                             : 'text-muted-foreground hover:text-red-500'
-                        }`} 
+                        }`}
                       />
                     </Button>
                   </div>

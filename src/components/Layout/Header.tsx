@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { NotificationDropdown } from '@/components/NotificationDropdown';
+import { Logo } from '@/components/ui/Logo';
 import { ShoppingBag, MessageCircle, User, LogOut, Menu, Settings, MapPin, Package, BarChart3, History, ChevronDown, Heart, Home, Sparkles } from 'lucide-react';
 
 export const Header = () => {
@@ -22,8 +23,8 @@ export const Header = () => {
   const getDashboardLink = () => {
     if (!user) return '/';
     switch (user.role) {
-      case 'buyer': return '/buyer-dashboard';
-      case 'seller': return '/seller-dashboard';
+      case 'comprador': return '/buyer-dashboard';
+      case 'vendedor': return '/seller-dashboard';
       case 'admin': return '/admin-dashboard';
       default: return '/';
     }
@@ -74,7 +75,7 @@ export const Header = () => {
             {user ? (
               <>
                 {/* Cart Premium - Responsivo */}
-                {user.role === 'buyer' && (
+                {user.role === 'comprador' && (
                   <Link to="/cart" className="relative group">
                     <div className="p-2.5 hover:bg-muted rounded-xl transition-all duration-300 hover:shadow-md">
                       <ShoppingBag className="h-5 w-5 text-foreground/70 group-hover:text-primary transition-colors" />
@@ -153,7 +154,7 @@ export const Header = () => {
                       </Link>
                     </DropdownMenuItem>
 
-                    {user.role === 'seller' && (
+                    {user.role === 'vendedor' && (
                       <DropdownMenuItem asChild className="px-3 py-2.5 text-sm rounded-lg">
                         <Link to="/financial-dashboard" className="flex items-center space-x-3 cursor-pointer hover:bg-muted/50 transition-colors">
                           <BarChart3 className="h-4 w-4 text-green-500" />
@@ -162,7 +163,7 @@ export const Header = () => {
                       </DropdownMenuItem>
                     )}
 
-                    {user.role === 'seller' && (
+                    {user.role === 'vendedor' && (
                       <DropdownMenuItem asChild className="px-3 py-2.5 text-sm rounded-lg">
                         <Link to="/orders/tracking" className="flex items-center space-x-3 cursor-pointer hover:bg-muted/50 transition-colors">
                           <Package className="h-4 w-4 text-orange-500" />
@@ -256,7 +257,7 @@ export const Header = () => {
                             <MapPin className="h-5 w-5 text-accent group-hover:scale-110 transition-transform" />
                             <span className="font-medium">Acerca</span>
                           </Link>
-                          {user.role === 'buyer' && (
+                          {user.role === 'comprador' && (
                             <>
                               <Link 
                                 to="/cart" 

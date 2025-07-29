@@ -101,12 +101,12 @@ function App() {
 
                     {/* User dashboard routes - Role specific */}
                     <Route path="/buyer-dashboard" element={
-                      <ProtectedRoute requiredRole="buyer">
+                      <ProtectedRoute requiredRole="comprador">
                         <BuyerDashboard />
                       </ProtectedRoute>
                     } />
                     <Route path="/seller-dashboard" element={
-                      <ProtectedRoute requiredRole="seller" requireApproval={true}>
+                      <ProtectedRoute requiredRole="vendedor" requireApproval={true}>
                         <SellerDashboard />
                       </ProtectedRoute>
                     } />
