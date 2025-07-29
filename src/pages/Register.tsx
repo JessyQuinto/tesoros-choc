@@ -236,57 +236,61 @@ export const Register = () => {
 
       <RadioGroup value={selectedRole} onValueChange={(value: UserRole) => setSelectedRole(value)}>
         <div className="space-y-4">
-          <div className={`relative p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-lg ${
+          <Card className={`relative cursor-pointer transition-all duration-300 hover:shadow-lg ${
             selectedRole === 'buyer' 
               ? 'border-primary bg-primary/5 shadow-md transform scale-[1.02]' 
               : 'border-border/50 hover:border-primary/30 hover:bg-muted/30'
           }`}>
-            <RadioGroupItem value="buyer" id="buyer" className="absolute top-6 right-6" />
-            <Label htmlFor="buyer" className="cursor-pointer block">
-              <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-xl ${selectedRole === 'buyer' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'} transition-colors duration-200`}>
-                  <ShoppingBag className="h-6 w-6" />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <h4 className="text-lg font-semibold">Comprador</h4>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Descubre y compra productos artesanales únicos del Chocó. 
-                    Apoya a los artesanos locales y lleva contigo un pedazo de Colombia.
-                  </p>
-                  <div className="flex items-center gap-2 text-primary text-sm font-medium">
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span>Acceso inmediato</span>
+            <CardContent className="p-6">
+              <RadioGroupItem value="buyer" id="buyer" className="absolute top-6 right-6" />
+              <Label htmlFor="buyer" className="cursor-pointer block">
+                <div className="flex items-start gap-4">
+                  <div className={`p-3 rounded-xl ${selectedRole === 'buyer' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'} transition-colors duration-200`}>
+                    <ShoppingBag className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <h4 className="text-lg font-semibold">Comprador</h4>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      Descubre y compra productos artesanales únicos del Chocó. 
+                      Apoya a los artesanos locales y lleva contigo un pedazo de Colombia.
+                    </p>
+                    <div className="flex items-center gap-2 text-primary text-sm font-medium">
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span>Acceso inmediato</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Label>
-          </div>
+              </Label>
+            </CardContent>
+          </Card>
 
-          <div className={`relative p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-lg ${
+          <Card className={`relative cursor-pointer transition-all duration-300 hover:shadow-lg ${
             selectedRole === 'seller' 
               ? 'border-primary bg-primary/5 shadow-md transform scale-[1.02]' 
               : 'border-border/50 hover:border-primary/30 hover:bg-muted/30'
           }`}>
-            <RadioGroupItem value="seller" id="seller" className="absolute top-6 right-6" />
-            <Label htmlFor="seller" className="cursor-pointer block">
-              <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-xl ${selectedRole === 'seller' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'} transition-colors duration-200`}>
-                  <Store className="h-6 w-6" />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <h4 className="text-lg font-semibold">Vendedor</h4>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Comparte tu arte y tradiciones con el mundo. 
-                    Vende tus productos artesanales y conecta con compradores globales.
-                  </p>
-                  <div className="flex items-center gap-2 text-amber-600 text-sm font-medium">
-                    <Users className="h-4 w-4" />
-                    <span>Requiere aprobación</span>
+            <CardContent className="p-6">
+              <RadioGroupItem value="seller" id="seller" className="absolute top-6 right-6" />
+              <Label htmlFor="seller" className="cursor-pointer block">
+                <div className="flex items-start gap-4">
+                  <div className={`p-3 rounded-xl ${selectedRole === 'seller' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'} transition-colors duration-200`}>
+                    <Store className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <h4 className="text-lg font-semibold">Vendedor</h4>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      Comparte tu arte y tradiciones con el mundo. 
+                      Vende tus productos artesanales y conecta con compradores globales.
+                    </p>
+                    <div className="flex items-center gap-2 text-amber-600 text-sm font-medium">
+                      <Users className="h-4 w-4" />
+                      <span>Requiere aprobación</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Label>
-          </div>
+              </Label>
+            </CardContent>
+          </Card>
         </div>
       </RadioGroup>
 
