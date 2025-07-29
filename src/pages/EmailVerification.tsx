@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Countdown from '@/components/ui/Countdown';
 import { useAuth } from '@/contexts/AuthContext';
+import { UserRole } from '@/types/user.types';
 import { useEmailVerification } from '@/hooks/useEmailVerification';
 import { auth } from '@/config/firebase';
 import EmailService from '@/services/EmailService';
@@ -28,26 +29,17 @@ export const EmailVerification = () => {
     formatTime
   } = useEmailVerification({
     totalDuration: 120, // 2 minutos
-    userData: user && (user.role === 'buyer' || user.role === 'seller') ? {
+    userData: user && (user.role === 'comprador' || user.role === 'vendedor') ? {
       name: user.name || 'Usuario',
       email: user.email,
-      role: user.role,
+      role: user.role === 'comprador' ? 'buyer' : 'seller',
       isApproved: user.isApproved
     } : undefined,
     onVerificationSuccess: () => {
-      setMessage('¡Email verificado exitosamente! 🎉 Te hemos enviado un correo de bienvenida. Redirigiendo...');
-      
-      // Redireccionar después de 3 segundos
+      setMessage('¡Email verificado exitosamente! 🎉 Serás redirigido al inicio de sesión...');
+      // Redireccionar después de 3 segundos a login
       setTimeout(() => {
-        if (user?.role === 'seller' && !user.isApproved) {
-          navigate('/pending-approval');
-        } else if (user?.role === 'admin') {
-          navigate('/admin-dashboard');
-        } else if (user?.role === 'seller' && user.isApproved) {
-          navigate('/seller-dashboard');
-        } else {
-          navigate('/');
-        }
+        navigate('/login');
       }, 3000);
     },
     onTimeout: () => {

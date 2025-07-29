@@ -9,9 +9,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Mail, Lock, Sparkles, Eye, EyeOff, ArrowRight, Mountain, MailCheck } from 'lucide-react';
 import { useRef } from 'react';
+import { setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
+import { auth } from '@/config/firebase';
 import EmailService from '@/services/EmailService';
 import { UserRole } from '@/types/user.types';
-
 
 export const Login = () => {
   const [email, setEmail] = useState('');
@@ -21,6 +22,8 @@ export const Login = () => {
   const [verificationSent, setVerificationSent] = useState(false);
   const [verificationError, setVerificationError] = useState<string|null>(null);
   const { login, error, clearError, user } = useAuth();
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const navigate = useNavigate();
   const emailInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,11 +52,23 @@ export const Login = () => {
     clearError();
     setVerificationSent(false);
     setVerificationError(null);
+    setPendingVerification(false);
     try {
+      // Cambiar persistencia según el checkbox
+      await setPersistence(
+        auth,
+        rememberMe ? browserLocalPersistence : browserSessionPersistence
+      );
       await login(email, password);
       // Navigation will be handled by useEffect when user state changes
     } catch (err) {
-      // Si el error es de verificación de email, no hacer nada aquí, se maneja abajo
+      // Si el error es de verificación de email, redirigir a /verify-email
+      if (err instanceof Error && err.message && err.message.toLowerCase().includes('verifica tu email')) {
+        setPendingVerification(true);
+        setTimeout(() => {
+          navigate('/verify-email');
+        }, 1500);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -175,6 +190,18 @@ export const Login = () => {
               </div>
             </div>
 
+            <div className="flex items-center gap-2 mb-2">
+              <input
+                id="rememberMe"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={() => setRememberMe((v) => !v)}
+                className="accent-primary h-4 w-4 rounded border border-border focus:ring-2 focus:ring-primary"
+              />
+              <label htmlFor="rememberMe" className="text-sm text-muted-foreground cursor-pointer select-none">
+                Recordarme
+              </label>
+            </div>
             <Button 
               type="submit" 
               className="w-full h-12 bg-gradient-to-r from-primary via-secondary to-accent text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:transform-none group"
@@ -231,4 +258,4 @@ export const Login = () => {
       </Card>
     </div>
   );
-};
+}
