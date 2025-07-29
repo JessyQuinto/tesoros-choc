@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Progress } from '@/components/ui/progress';
+import Countdown from '@/components/ui/Countdown';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEmailVerification } from '@/hooks/useEmailVerification';
 import { auth } from '@/config/firebase';
@@ -101,133 +100,108 @@ export const EmailVerification = () => {
   const userEmail = auth.currentUser?.email || user?.email || '';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 flex items-center justify-center p-4">
-      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 w-full max-w-md border border-amber-200/50">
-        <div className="text-center">
-          {/* Logo/Icon */}
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mb-6 shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#232526] via-[#414345] to-[#232526] p-4">
+      <div className="relative w-full max-w-lg rounded-3xl shadow-2xl bg-white/10 backdrop-blur-xl border border-white/20 overflow-hidden animate-fade-in">
+        {/* Glow decor */}
+        <div className="absolute -top-10 -left-10 w-40 h-40 bg-gradient-to-br from-amber-400/40 to-orange-500/30 rounded-full blur-2xl z-0" />
+        <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-gradient-to-br from-blue-400/30 to-purple-500/20 rounded-full blur-2xl z-0" />
+        <div className="relative z-10 p-10 flex flex-col items-center">
+          {/* Icono principal */}
+          <div className={`w-20 h-20 flex items-center justify-center rounded-full shadow-xl mb-6 transition-all duration-500 ${isVerified ? 'bg-gradient-to-br from-green-400 to-green-600' : 'bg-gradient-to-br from-amber-500 to-orange-600'}`}>
             {isVerified ? (
-              <CheckCircle className="w-8 h-8 text-white" />
+              <CheckCircle className="w-12 h-12 text-white drop-shadow-lg" />
             ) : (
-              <Mail className="w-8 h-8 text-white" />
+              <Mail className="w-12 h-12 text-white drop-shadow-lg animate-bounce-slow" />
             )}
           </div>
-
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-2 font-display">
             {isVerified ? '¡Email Verificado!' : 'Verificación de Email'}
           </h1>
-
-          <p className="text-gray-600 mb-6">
-            {isVerified ? 
-              'Tu cuenta ha sido verificada exitosamente' :
-              <>Enviamos un correo de verificación a <br /><span className="font-semibold text-amber-700">{userEmail}</span></>
+          <p className="text-base text-gray-700 dark:text-gray-200 mb-6">
+            {isVerified ?
+              'Tu cuenta ha sido verificada exitosamente.' :
+              <>Enviamos un correo de verificación a <br /><span className="font-semibold text-amber-700 dark:text-amber-400">{userEmail}</span></>
             }
           </p>
 
-          {/* Contador regresivo claro */}
+          {/* Contador y barra de progreso */}
           {!isVerified && isAutoChecking && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <Clock className="w-6 h-6 text-blue-600" />
-                <h3 className="font-semibold text-blue-800">Verificación automática</h3>
+            <div className="w-full bg-gradient-to-br from-blue-50/80 to-blue-100/60 border border-blue-200/60 rounded-2xl p-6 mb-8 flex flex-col items-center shadow-md">
+              <div className="flex items-center gap-3 mb-2">
+                <Clock className="w-7 h-7 text-blue-600" />
+                <span className="font-semibold text-blue-800 text-lg">Tiempo restante</span>
               </div>
-              
-              {/* Contador regresivo grande y claro */}
-              <div className="text-center">
-                <div className="text-4xl font-bold text-blue-700 mb-2 font-mono">
-                  {formatTime(timeLeft)}
-                </div>
-                <p className="text-sm text-blue-600 mb-4">
-                  Tiempo restante para verificación automática
-                </p>
-                
-                {/* Barra de progreso */}
-                <div className="w-full bg-blue-200 rounded-full h-2 mb-3">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                </div>
-                
-                <p className="text-xs text-blue-500">
-                  Revisando automáticamente tu email
-                </p>
+              <Countdown initialSeconds={120} />
+              <div className="w-full bg-blue-200 rounded-full h-2 mt-4">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
+                  style={{ width: `${progress}%` }}
+                ></div>
               </div>
             </div>
           )}
 
           {/* Mensaje de status */}
           {message && (
-            <Alert className={`mb-6 ${isVerified ? 'border-green-200 bg-green-50' : message.includes('Error') ? 'border-red-200 bg-red-50' : ''}`}>
+            <Alert className={`mb-6 w-full ${isVerified ? 'border-green-200 bg-green-50/80' : message.includes('Error') ? 'border-red-200 bg-red-50/80' : 'border-blue-200 bg-blue-50/80'}`}>
               {isVerified ? (
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle className="h-5 w-5 text-green-600" />
               ) : (
-                <AlertCircle className="h-4 w-4" />
+                <AlertCircle className="h-5 w-5 text-blue-600" />
               )}
-              <AlertDescription className={isVerified ? 'text-green-700 font-medium' : ''}>
+              <AlertDescription className={isVerified ? 'text-green-700 font-semibold' : 'text-blue-700'}>
                 {message}
               </AlertDescription>
             </Alert>
           )}
 
+          {/* Instrucciones y acción */}
           {!isVerified && (
             <>
-              {/* Información del email */}
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-left">
-                <h4 className="font-semibold text-amber-800 mb-2">📧 ¿Qué hacer ahora?</h4>
-                <ul className="text-sm text-amber-700 space-y-1">
+              <div className="w-full bg-gradient-to-br from-amber-50/80 to-orange-100/60 border border-amber-200/60 rounded-2xl p-5 mb-6 text-left shadow-sm">
+                <h4 className="font-bold text-amber-800 mb-2 text-lg flex items-center gap-2"><Mail className="w-5 h-5" /> ¿Qué hacer ahora?</h4>
+                <ul className="text-base text-amber-700 space-y-1 pl-2">
                   <li>• Revisa tu bandeja de entrada</li>
                   <li>• Busca el correo de "Tesoros del Chocó"</li>
                   <li>• Haz clic en el enlace de verificación</li>
                   <li>• La página se actualizará automáticamente</li>
                 </ul>
               </div>
-
-              {/* Botones de acción */}
-              <div className="space-y-3">
-                <Button 
-                  onClick={handleManualCheck}
-                  className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white py-3 rounded-lg font-medium hover:from-amber-600 hover:to-orange-700 transition-all duration-200 shadow-lg"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Verificar ahora
-                </Button>
-
+              <div className="w-full flex flex-col gap-3">
                 <Button 
                   onClick={handleResendEmail}
                   disabled={isResending || (lastSent && Date.now() - lastSent.getTime() < 30000)}
                   variant="outline"
-                  className="w-full border-amber-300 text-amber-700 hover:bg-amber-50 py-3 rounded-lg font-medium transition-all duration-200"
+                  className="w-full border-amber-400 text-amber-800 hover:bg-amber-100/80 py-3 rounded-xl font-semibold text-lg transition-all duration-200 shadow-md"
                 >
                   {isResending ? (
                     <>
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
                       Reenviando...
                     </>
                   ) : (
                     <>
-                      <Mail className="w-4 h-4 mr-2" />
+                      <Mail className="w-5 h-5 mr-2" />
                       Reenviar correo
                     </>
                   )}
                 </Button>
               </div>
-
-              {/* Ayuda */}
-              <div className="mt-6 text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+              <div className="mt-6 text-xs text-gray-500 bg-gray-50/80 p-3 rounded-lg w-full text-center">
                 <p className="mb-1">💡 <strong>Tip:</strong> Revisa tu carpeta de spam si no ves el correo</p>
-                <p>⏱️ <strong>Tiempo límite:</strong> 2 minutos de verificación automática</p>
+                <p>⏱️ <strong>Tiempo límite:</strong> 2 minutos</p>
               </div>
             </>
           )}
 
+          {/* Mensaje de éxito */}
           {isVerified && (
-            <div className="space-y-4">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-green-700 font-medium">
+            <div className="w-full space-y-4">
+              <div className="bg-gradient-to-br from-green-50/80 to-green-100/60 border border-green-200/60 rounded-2xl p-5 text-center">
+                <p className="text-green-700 font-bold text-lg">
                   ¡Perfecto! Tu email ha sido verificado exitosamente.
                 </p>
-                <p className="text-green-600 text-sm mt-1">
+                <p className="text-green-600 text-base mt-1">
                   Serás redirigido automáticamente en unos segundos...
                 </p>
               </div>
