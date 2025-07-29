@@ -29,8 +29,8 @@ export const EmailVerification = () => {
     formatTime
   } = useEmailVerification({
     totalDuration: 120, // 2 minutos
-    userData: user ? {
-      name: user.name || user.displayName || 'Usuario',
+    userData: user && (user.role === 'buyer' || user.role === 'seller') ? {
+      name: user.name || 'Usuario',
       email: user.email,
       role: user.role,
       isApproved: user.isApproved
