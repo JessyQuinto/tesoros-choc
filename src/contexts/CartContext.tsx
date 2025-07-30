@@ -1,6 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useAuth } from './AuthContext';
-import { apiClient } from '@/lib/api-client';
+import { createContext, useContext, useState, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 export interface CartItem {
@@ -45,29 +43,20 @@ interface CartProviderProps {
 }
 
 export const CartProvider = ({ children }: CartProviderProps) => {
-  const { user } = useAuth();
   const { toast } = useToast();
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Cargar carrito desde el backend cuando el usuario se autentica
-  useEffect(() => {
-    if (user?.role === 'buyer') {
-      refreshCart();
-    } else {
-      setItems([]);
-    }
-  }, [user]);
-
   const refreshCart = async () => {
-    if (!user || user.role !== 'buyer') return;
-
+    // Sin autenticación, usar localStorage
     try {
       setLoading(true);
       setError(null);
-      const response = await apiClient.get<CartItem[]>('/buyer/cart', true);
-      setItems(response);
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        setItems(JSON.parse(savedCart));
+      }
     } catch (err) {
       const error = err as Error;
       setError(error.message);
@@ -77,29 +66,40 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     }
   };
 
-  const addToCart = async (productId: string, quantity: number) => {
-    if (!user || user.role !== 'buyer') {
-      toast({
-        title: "Error",
-        description: "Debes iniciar sesión como comprador para agregar productos al carrito",
-        variant: "destructive"
-      });
-      return;
-    }
+  const saveCartToStorage = (cartItems: CartItem[]) => {
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  };
 
+  const addToCart = async (productId: string, quantity: number) => {
     try {
       setLoading(true);
       setError(null);
       
-      await apiClient.post('/buyer/cart/add', { productId, quantity }, true);
+      // Buscar si el producto ya existe en el carrito
+      const existingItemIndex = items.findIndex(item => item.productId === productId);
+      
+      let newItems: CartItem[];
+      if (existingItemIndex >= 0) {
+        // Actualizar cantidad del producto existente
+        newItems = [...items];
+        newItems[existingItemIndex].quantity += quantity;
+      } else {
+        // Agregar nuevo producto
+        const newItem: CartItem = {
+          productId,
+          quantity,
+          addedAt: new Date().toISOString()
+        };
+        newItems = [...items, newItem];
+      }
+      
+      setItems(newItems);
+      saveCartToStorage(newItems);
       
       toast({
         title: "Producto agregado",
         description: "El producto se ha agregado al carrito exitosamente"
       });
-      
-      // Refrescar el carrito para obtener los datos actualizados
-      await refreshCart();
     } catch (err) {
       const error = err as Error;
       setError(error.message);
@@ -114,20 +114,18 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   };
 
   const removeFromCart = async (productId: string) => {
-    if (!user || user.role !== 'buyer') return;
-
     try {
       setLoading(true);
       setError(null);
       
-      await apiClient.delete(`/buyer/cart/${productId}`, true);
+      const newItems = items.filter(item => item.productId !== productId);
+      setItems(newItems);
+      saveCartToStorage(newItems);
       
       toast({
         title: "Producto eliminado",
         description: "El producto se ha eliminado del carrito"
       });
-      
-      await refreshCart();
     } catch (err) {
       const error = err as Error;
       setError(error.message);
@@ -142,8 +140,6 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   };
 
   const updateQuantity = async (productId: string, quantity: number) => {
-    if (!user || user.role !== 'buyer') return;
-
     if (quantity <= 0) {
       await removeFromCart(productId);
       return;
@@ -153,9 +149,14 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       setLoading(true);
       setError(null);
       
-      await apiClient.put(`/buyer/cart/${productId}`, { quantity }, true);
+      const newItems = items.map(item => 
+        item.productId === productId 
+          ? { ...item, quantity }
+          : item
+      );
       
-      await refreshCart();
+      setItems(newItems);
+      saveCartToStorage(newItems);
     } catch (err) {
       const error = err as Error;
       setError(error.message);
@@ -170,20 +171,17 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   };
 
   const clearCart = async () => {
-    if (!user || user.role !== 'buyer') return;
-
     try {
       setLoading(true);
       setError(null);
       
-      await apiClient.delete('/buyer/cart', true);
+      setItems([]);
+      localStorage.removeItem('cart');
       
       toast({
         title: "Carrito vaciado",
         description: "El carrito se ha vaciado exitosamente"
       });
-      
-      setItems([]);
     } catch (err) {
       const error = err as Error;
       setError(error.message);

@@ -1,34 +1,14 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { NotificationDropdown } from '@/components/NotificationDropdown';
-import { Logo } from '@/components/ui/Logo';
-import { ShoppingBag, MessageCircle, User, LogOut, Menu, Settings, MapPin, Package, BarChart3, History, ChevronDown, Heart, Home, Sparkles } from 'lucide-react';
+import { ShoppingBag, MessageCircle, Menu, MapPin, Package, Home, Sparkles } from 'lucide-react';
 
 export const Header = () => {
-  const { user, logout } = useAuth();
   const { totalItems } = useCart();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
-  const getDashboardLink = () => {
-    if (!user) return '/';
-    switch (user.role) {
-      case 'comprador': return '/buyer-dashboard';
-      case 'vendedor': return '/seller-dashboard';
-      case 'admin': return '/admin-dashboard';
-      default: return '/';
-    }
-  };
 
   return (
     <header className="header-gradient border-b border-border/30 sticky top-0 z-50 safe-top">
@@ -72,143 +52,42 @@ export const Header = () => {
 
           {/* Actions Mejoradas - Responsivo */}
           <div className="flex items-center space-x-3 sm:space-x-4">
-            {user ? (
-              <>
-                {/* Cart Premium - Responsivo */}
-                {user.role === 'comprador' && (
-                  <Link to="/cart" className="relative group">
-                    <div className="p-2.5 hover:bg-muted rounded-xl transition-all duration-300 hover:shadow-md">
-                      <ShoppingBag className="h-5 w-5 text-foreground/70 group-hover:text-primary transition-colors" />
-                      {totalItems > 0 && (
-                        <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 bg-gradient-to-r from-accent to-accent-hover text-accent-foreground text-xs rounded-full flex items-center justify-center font-semibold border-0 shadow-lg">
-                          {totalItems > 9 ? '9+' : totalItems}
-                        </Badge>
-                      )}
-                    </div>
-                  </Link>
+            {/* Cart Premium - Responsivo */}
+            <Link to="/cart" className="relative group">
+              <div className="p-2.5 hover:bg-muted rounded-xl transition-all duration-300 hover:shadow-md">
+                <ShoppingBag className="h-5 w-5 text-foreground/70 group-hover:text-primary transition-colors" />
+                {totalItems > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 bg-gradient-to-r from-accent to-accent-hover text-accent-foreground text-xs rounded-full flex items-center justify-center font-semibold border-0 shadow-lg">
+                    {totalItems > 9 ? '9+' : totalItems}
+                  </Badge>
                 )}
+              </div>
+            </Link>
 
-                {/* Messages Premium - Hidden on mobile */}
-                <Link to="/messages" className="hidden md:flex group">
-                  <div className="p-2.5 hover:bg-muted rounded-xl transition-all duration-300 hover:shadow-md">
-                    <MessageCircle className="h-5 w-5 text-foreground/70 group-hover:text-secondary transition-colors" />
-                  </div>
-                </Link>
+            {/* Messages Premium - Hidden on mobile */}
+            <Link to="/messages" className="hidden md:flex group">
+              <div className="p-2.5 hover:bg-muted rounded-xl transition-all duration-300 hover:shadow-md">
+                <MessageCircle className="h-5 w-5 text-foreground/70 group-hover:text-secondary transition-colors" />
+              </div>
+            </Link>
 
-                {/* Notificaciones */}
-                <NotificationDropdown />
+            {/* Notificaciones */}
+            <NotificationDropdown />
 
-                {/* User Menu Premium - Responsivo */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex items-center space-x-2 p-2 hover:bg-muted rounded-xl transition-all duration-300 group">
-                      <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300">
-                        <span className="text-sm font-semibold text-white">
-                          {user.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors hidden sm:block" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 p-2 border-0 shadow-2xl bg-card/95 backdrop-blur-md rounded-xl">
-                    <DropdownMenuLabel className="px-3 py-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
-                          <span className="text-sm font-semibold text-white">
-                            {user.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-foreground">{user.name}</p>
-                          <p className="text-xs text-muted-foreground capitalize font-medium">{user.role}</p>
-                        </div>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator className="bg-border/50 my-2" />
-                    
-                    <DropdownMenuItem asChild className="px-3 py-2.5 text-sm rounded-lg">
-                      <Link to={getDashboardLink()} className="flex items-center space-x-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                        <BarChart3 className="h-4 w-4 text-primary" />
-                        <span className="font-medium">Panel de Control</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuItem asChild className="px-3 py-2.5 text-sm rounded-lg">
-                      <Link to="/messages" className="flex items-center space-x-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                        <MessageCircle className="h-4 w-4 text-secondary" />
-                        <span className="font-medium">Mensajes</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuItem asChild className="px-3 py-2.5 text-sm rounded-lg">
-                      <Link to="/reviews" className="flex items-center space-x-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                        <Heart className="h-4 w-4 text-pink-500" />
-                        <span className="font-medium">Mis Reseñas</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuItem asChild className="px-3 py-2.5 text-sm rounded-lg">
-                      <Link to="/notifications" className="flex items-center space-x-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                        <MessageCircle className="h-4 w-4 text-blue-500" />
-                        <span className="font-medium">Notificaciones</span>
-                      </Link>
-                    </DropdownMenuItem>
-
-                    {user.role === 'vendedor' && (
-                      <DropdownMenuItem asChild className="px-3 py-2.5 text-sm rounded-lg">
-                        <Link to="/financial-dashboard" className="flex items-center space-x-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                          <BarChart3 className="h-4 w-4 text-green-500" />
-                          <span className="font-medium">Dashboard Financiero</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-
-                    {user.role === 'vendedor' && (
-                      <DropdownMenuItem asChild className="px-3 py-2.5 text-sm rounded-lg">
-                        <Link to="/orders/tracking" className="flex items-center space-x-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                          <Package className="h-4 w-4 text-orange-500" />
-                          <span className="font-medium">Seguimiento de Pedidos</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                    
-                    <DropdownMenuItem asChild className="px-3 py-2.5 text-sm rounded-lg">
-                      <Link to="/profile/settings" className="flex items-center space-x-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                        <Settings className="h-4 w-4 text-accent" />
-                        <span className="font-medium">Configuración</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuSeparator className="bg-border/50 my-2" />
-                    
-                    <DropdownMenuItem 
-                      className="px-3 py-2.5 text-sm text-destructive hover:text-destructive cursor-pointer rounded-lg hover:bg-destructive/10 transition-colors"
-                      onClick={handleLogout}
-                    >
-                      <LogOut className="h-4 w-4 mr-3" />
-                      <span className="font-medium">Cerrar Sesión</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            ) : (
-              <>
-                {/* Desktop Login/Register Premium */}
-                <div className="hidden sm:flex items-center space-x-4">
-                  <Link 
-                    to="/login" 
-                    className="text-sm font-medium text-foreground/80 hover:text-primary transition-all duration-300"
-                  >
-                    Acceder
-                  </Link>
-                  <Link to="/register">
-                    <Button className="btn-primary h-10 px-6 font-medium">
-                      Comenzar
-                    </Button>
-                  </Link>
-                </div>
-              </>
-            )}
+            {/* Desktop Login/Register Premium */}
+            <div className="hidden sm:flex items-center space-x-4">
+              <Link 
+                to="/admin-dashboard" 
+                className="text-sm font-medium text-foreground/80 hover:text-primary transition-all duration-300"
+              >
+                Panel Admin
+              </Link>
+              <Link to="/seller-dashboard">
+                <Button className="btn-primary h-10 px-6 font-medium">
+                  Vendedores
+                </Button>
+              </Link>
+            </div>
 
             {/* Mobile Menu Premium - Para pantallas pequeñas */}
             <Sheet>
@@ -232,125 +111,65 @@ export const Header = () => {
                   </SheetHeader>
                   
                   <div className="space-y-6">
-                    {user ? (
-                      <>
-                        {/* Navigation Links Premium */}
-                        <nav className="space-y-2">
-                          <Link 
-                            to="/" 
-                            className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
-                          >
-                            <Home className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                            <span className="font-medium">Inicio</span>
-                          </Link>
-                          <Link 
-                            to="/products" 
-                            className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
-                          >
-                            <Package className="h-5 w-5 text-secondary group-hover:scale-110 transition-transform" />
-                            <span className="font-medium">Productos</span>
-                          </Link>
-                          <Link 
-                            to="/about" 
-                            className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
-                          >
-                            <MapPin className="h-5 w-5 text-accent group-hover:scale-110 transition-transform" />
-                            <span className="font-medium">Acerca</span>
-                          </Link>
-                          {user.role === 'comprador' && (
-                            <>
-                              <Link 
-                                to="/cart" 
-                                className="flex items-center justify-between p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
-                              >
-                                <div className="flex items-center space-x-3">
-                                  <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                                  <span className="font-medium">Carrito</span>
-                                </div>
-                                {totalItems > 0 && (
-                                  <Badge className="bg-gradient-to-r from-accent to-accent-hover text-accent-foreground border-0">
-                                    {totalItems}
-                                  </Badge>
-                                )}
-                              </Link>
-                              <Link 
-                                to="/buyer-dashboard" 
-                                className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
-                              >
-                                <Heart className="h-5 w-5 text-destructive group-hover:scale-110 transition-transform" />
-                                <span className="font-medium">Mis Favoritos</span>
-                              </Link>
-                            </>
-                          )}
-                          <Link 
-                            to="/messages" 
-                            className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
-                          >
-                            <MessageCircle className="h-5 w-5 text-secondary group-hover:scale-110 transition-transform" />
-                            <span className="font-medium">Mensajes</span>
-                          </Link>
-                          <Link 
-                            to={getDashboardLink()} 
-                            className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
-                          >
-                            <BarChart3 className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                            <span className="font-medium">Dashboard</span>
-                          </Link>
-                        </nav>
-
-                        {/* Logout Premium */}
-                        <div className="pt-6 border-t border-border/30">
-                          <button
-                            onClick={handleLogout}
-                            className="flex items-center space-x-3 p-3 w-full text-destructive hover:bg-destructive/10 rounded-xl transition-all duration-300 group"
-                          >
-                            <LogOut className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                            <span className="font-medium">Cerrar Sesión</span>
-                          </button>
+                    {/* Navigation Links Premium */}
+                    <nav className="space-y-2">
+                      <Link 
+                        to="/" 
+                        className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
+                      >
+                        <Home className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                        <span className="font-medium">Inicio</span>
+                      </Link>
+                      <Link 
+                        to="/products" 
+                        className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
+                      >
+                        <Package className="h-5 w-5 text-secondary group-hover:scale-110 transition-transform" />
+                        <span className="font-medium">Productos</span>
+                      </Link>
+                      <Link 
+                        to="/about" 
+                        className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
+                      >
+                        <MapPin className="h-5 w-5 text-accent group-hover:scale-110 transition-transform" />
+                        <span className="font-medium">Acerca</span>
+                      </Link>
+                      <Link 
+                        to="/cart" 
+                        className="flex items-center justify-between p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <ShoppingBag className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                          <span className="font-medium">Carrito</span>
                         </div>
-                      </>
-                    ) : (
-                      <>
-                        {/* Navigation for non-logged users */}
-                        <nav className="space-y-2">
-                          <Link 
-                            to="/" 
-                            className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
-                          >
-                            <Home className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                            <span className="font-medium">Inicio</span>
-                          </Link>
-                          <Link 
-                            to="/products" 
-                            className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
-                          >
-                            <Package className="h-5 w-5 text-secondary group-hover:scale-110 transition-transform" />
-                            <span className="font-medium">Productos</span>
-                          </Link>
-                          <Link 
-                            to="/about" 
-                            className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
-                          >
-                            <MapPin className="h-5 w-5 text-accent group-hover:scale-110 transition-transform" />
-                            <span className="font-medium">Acerca</span>
-                          </Link>
-                        </nav>
-
-                        {/* Login/Register Premium */}
-                        <div className="space-y-3 pt-6 border-t border-border/30">
-                          <Link to="/login" className="block">
-                            <Button variant="outline" className="w-full h-12 font-medium border-2 hover:border-primary">
-                              Iniciar Sesión
-                            </Button>
-                          </Link>
-                          <Link to="/register" className="block">
-                            <Button className="btn-primary w-full h-12">
-                              Registrarse
-                            </Button>
-                          </Link>
-                        </div>
-                      </>
-                    )}
+                        {totalItems > 0 && (
+                          <Badge className="bg-gradient-to-r from-accent to-accent-hover text-accent-foreground border-0">
+                            {totalItems}
+                          </Badge>
+                        )}
+                      </Link>
+                      <Link 
+                        to="/messages" 
+                        className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
+                      >
+                        <MessageCircle className="h-5 w-5 text-secondary group-hover:scale-110 transition-transform" />
+                        <span className="font-medium">Mensajes</span>
+                      </Link>
+                      <Link 
+                        to="/admin-dashboard" 
+                        className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
+                      >
+                        <Package className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                        <span className="font-medium">Panel Admin</span>
+                      </Link>
+                      <Link 
+                        to="/seller-dashboard" 
+                        className="flex items-center space-x-3 p-3 text-foreground/80 hover:bg-muted/50 rounded-xl transition-all duration-300 group"
+                      >
+                        <Package className="h-5 w-5 text-secondary group-hover:scale-110 transition-transform" />
+                        <span className="font-medium">Vendedores</span>
+                      </Link>
+                    </nav>
                   </div>
                 </div>
               </SheetContent>

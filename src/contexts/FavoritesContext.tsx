@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useAuth } from './AuthContext';
 
 interface FavoriteItem {
   id: number;
@@ -24,6 +23,14 @@ interface FavoritesContextType {
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
+export const useFavorites = () => {
+  const context = useContext(FavoritesContext);
+  if (context === undefined) {
+    throw new Error('useFavorites must be used within a FavoritesProvider');
+  }
+  return context;
+};
+
 export { FavoritesContext };
 
 interface FavoritesProviderProps {
@@ -31,7 +38,6 @@ interface FavoritesProviderProps {
 }
 
 export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
-  const { user } = useAuth();
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -40,35 +46,26 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
     const loadFavorites = async () => {
       setIsLoading(true);
       
-      if (user?.role === 'buyer') {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        const savedFavorites = localStorage.getItem(`favorites_${user.id}`);
-        if (savedFavorites) {
-          setFavorites(JSON.parse(savedFavorites));
-        }
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const savedFavorites = localStorage.getItem('favorites');
+      if (savedFavorites) {
+        setFavorites(JSON.parse(savedFavorites));
       }
       
       setIsLoading(false);
     };
     
     loadFavorites();
-  }, [user]);
+  }, []);
 
   // Save favorites to localStorage when favorites change
   useEffect(() => {
-    if (user?.role === 'buyer' && !isLoading) {
-      localStorage.setItem(`favorites_${user.id}`, JSON.stringify(favorites));
+    if (!isLoading) {
+      localStorage.setItem('favorites', JSON.stringify(favorites));
     }
-  }, [favorites, user, isLoading]);
-
-  // Clear favorites when user logs out
-  useEffect(() => {
-    if (!user || user.role !== 'buyer') {
-      setFavorites([]);
-    }
-  }, [user]);
+  }, [favorites, isLoading]);
 
   const addToFavorites = (product: Omit<FavoriteItem, 'addedAt'>) => {
     const favoriteItem: FavoriteItem = {

@@ -1,4 +1,3 @@
-import { auth } from '@/config/firebase';
 import { API_CONFIG } from '@/config/api.config';
 
 // API response types
@@ -10,7 +9,7 @@ export interface ApiResponse<T = unknown> {
   code?: string;
 }
 
-// API client with Firebase authentication integration
+// API client without Firebase authentication
 export class ApiClient {
   private baseUrl: string;
 
@@ -18,23 +17,11 @@ export class ApiClient {
     this.baseUrl = baseUrl;
   }
 
-  // Get authentication headers with Firebase token
-  private async getAuthHeaders(): Promise<Record<string, string>> {
-    const user = auth.currentUser;
-    const headers: Record<string, string> = {
+  // Get basic headers
+  private getHeaders(): Record<string, string> {
+    return {
       'Content-Type': 'application/json'
     };
-
-    if (user) {
-      console.log('🔐 ApiClient: Usuario autenticado, obteniendo token...');
-      const token = await user.getIdToken();
-      console.log('🔐 ApiClient: Token obtenido, longitud:', token.length);
-      headers['Authorization'] = `Bearer ${token}`;
-    } else {
-      console.log('⚠️ ApiClient: No hay usuario autenticado');
-    }
-
-    return headers;
   }
 
   // Handle API responses consistently
@@ -59,7 +46,7 @@ export class ApiClient {
 
   // Public endpoints (no auth required)
   async get<T>(endpoint: string, requireAuth: boolean = false): Promise<T> {
-    const headers = requireAuth ? await this.getAuthHeaders() : { 'Content-Type': 'application/json' };
+    const headers = this.getHeaders();
     const fullUrl = `${this.baseUrl}${endpoint}`;
     
     console.log('🌐 API GET Request:', { url: fullUrl, requireAuth, headers });
@@ -80,7 +67,7 @@ export class ApiClient {
     requireAuth: boolean = true,
     customHeaders?: Record<string, string>
   ): Promise<T> {
-    const baseHeaders = requireAuth ? await this.getAuthHeaders() : { 'Content-Type': 'application/json' };
+    const baseHeaders = this.getHeaders();
     const headers = { ...baseHeaders, ...customHeaders };
     
     console.log('🌐 ApiClient: POST Request:', { 
@@ -102,7 +89,7 @@ export class ApiClient {
   }
 
   async put<T>(endpoint: string, data: Record<string, unknown> | unknown[], requireAuth: boolean = true): Promise<T> {
-    const headers = requireAuth ? await this.getAuthHeaders() : { 'Content-Type': 'application/json' };
+    const headers = this.getHeaders();
     
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'PUT',
@@ -114,7 +101,7 @@ export class ApiClient {
   }
 
   async delete<T>(endpoint: string, requireAuth: boolean = true): Promise<T> {
-    const headers = requireAuth ? await this.getAuthHeaders() : { 'Content-Type': 'application/json' };
+    const headers = this.getHeaders();
     
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'DELETE',
