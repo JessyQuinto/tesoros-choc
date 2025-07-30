@@ -1,53 +1,76 @@
 import { apiClient } from '@/lib/api-client';
 import { UserProfile } from '@/types/user.types';
+import { Product } from '@/types/product.types';
+
+export interface SystemStats {
+  totalUsers: number;
+  totalProducts: number;
+  pendingSellers: number;
+  reportedProducts: number;
+  activeProducts: number;
+  suspendedUsers: number;
+}
 
 export class AdminService {
+  // ===== ENDPOINTS DE GESTIÓN DE USUARIOS =====
+
   // Obtener todos los usuarios
-  async getAllUsers(): Promise<UserProfile[]> {
+  async getUsers(): Promise<UserProfile[]> {
     return await apiClient.get<UserProfile[]>('/admin/users', true);
   }
 
-  // Aprobar solicitud de vendedor
-  async approveUser(userId: string): Promise<void> {
-    await apiClient.put<void>(`/admin/users/${userId}/approve`, {}, true);
+  // Obtener vendedores pendientes de aprobación
+  async getPendingSellers(): Promise<UserProfile[]> {
+    return await apiClient.get<UserProfile[]>('/admin/pending-sellers', true);
   }
 
-  // Rechazar solicitud de vendedor
-  async rejectUser(userId: string): Promise<void> {
-    await apiClient.put<void>(`/admin/users/${userId}/reject`, {}, true);
+  // Aprobar vendedor
+  async approveSeller(sellerId: string, reason?: string): Promise<void> {
+    await apiClient.put<void>(`/admin/sellers/${sellerId}/approve`, { reason }, true);
+  }
+
+  // Rechazar vendedor
+  async rejectSeller(sellerId: string, reason?: string): Promise<void> {
+    await apiClient.put<void>(`/admin/sellers/${sellerId}/reject`, { reason }, true);
   }
 
   // Suspender usuario
-  async suspendUser(userId: string): Promise<void> {
-    await apiClient.put<void>(`/admin/users/${userId}/suspend`, {}, true);
+  async suspendUser(userId: string, reason?: string): Promise<void> {
+    await apiClient.put<void>(`/admin/users/${userId}/suspend`, { reason }, true);
   }
 
-  // Reactivar usuario suspendido
-  async reactivateUser(userId: string): Promise<void> {
-    await apiClient.put<void>(`/admin/users/${userId}/reactivate`, {}, true);
+  // Reactivar usuario
+  async reactivateUser(userId: string, reason?: string): Promise<void> {
+    await apiClient.put<void>(`/admin/users/${userId}/reactivate`, { reason }, true);
   }
 
-  // Obtener usuarios pendientes de aprobación
-  async getPendingUsers(): Promise<UserProfile[]> {
-    const users = await this.getAllUsers();
-    return users.filter(user => user.role === 'seller' && !user.isApproved);
+  // ===== ENDPOINTS DE MODERACIÓN DE PRODUCTOS =====
+
+  // Obtener productos reportados
+  async getReportedProducts(): Promise<Product[]> {
+    return await apiClient.get<Product[]>('/admin/reported-products', true);
   }
+
+  // Aprobar producto
+  async approveProduct(productId: string, reason?: string): Promise<void> {
+    await apiClient.put<void>(`/admin/products/${productId}/approve`, { reason }, true);
+  }
+
+  // Rechazar producto
+  async rejectProduct(productId: string, reason?: string): Promise<void> {
+    await apiClient.put<void>(`/admin/products/${productId}/reject`, { reason }, true);
+  }
+
+  // Suspender producto
+  async suspendProduct(productId: string, reason?: string): Promise<void> {
+    await apiClient.put<void>(`/admin/products/${productId}/suspend`, { reason }, true);
+  }
+
+  // ===== ENDPOINTS DE ESTADÍSTICAS =====
 
   // Obtener estadísticas del sistema
-  async getSystemStats(): Promise<{
-    totalUsers: number;
-    totalBuyers: number;
-    totalSellers: number;
-    pendingApprovals: number;
-  }> {
-    const users = await this.getAllUsers();
-    
-    return {
-      totalUsers: users.length,
-      totalBuyers: users.filter(u => u.role === 'buyer').length,
-      totalSellers: users.filter(u => u.role === 'seller' && u.isApproved).length,
-      pendingApprovals: users.filter(u => u.role === 'seller' && !u.isApproved).length
-    };
+  async getSystemStats(): Promise<SystemStats> {
+    return await apiClient.get<SystemStats>('/admin/stats', true);
   }
 }
 
