@@ -9,6 +9,7 @@ import {
 import { auth } from '@/config/firebase';
 import { apiClient } from '@/lib/api-client';
 import { UserProfile, UserRole } from '@/types/user.types';
+import { USER_CONFIG, findPredefinedAccount } from '@/config/users.config';
 import EmailService from './EmailService';
 
 export interface RegisterData {
@@ -44,7 +45,7 @@ export class AuthService {
       const token = await user.getIdToken();
       console.log('🔐 AuthService: Token obtenido, longitud:', token.length);
       
-      // Verificar token con el backend - no requiere auth automática porque enviamos el token manualmente
+      // Verificar token con el backend
       console.log('🌐 AuthService: Enviando petición al backend...');
       const profile = await apiClient.post<UserProfile>('/auth/verify-token', {}, false, {
         'Authorization': `Bearer ${token}`
@@ -63,32 +64,36 @@ export class AuthService {
     try {
       console.log('🚀 Iniciando registro para:', data.email, 'con rol:', data.role);
       
-      // 1. Crear usuario en Firebase Auth
+      // 1. Verificar si es cuenta predefinida
+      const predefinedAccount = findPredefinedAccount(data.email);
+      if (predefinedAccount) {
+        console.log('⚠️ Usuario predefinido detectado:', predefinedAccount);
+        throw new Error('Este email está reservado para cuentas del sistema');
+      }
+      
+      // 2. Crear usuario en Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const user = userCredential.user;
       
       console.log('✅ Usuario creado en Auth:', user.uid);
 
-      // 2. Enviar verificación de email con plantilla personalizada
+      // 3. Enviar verificación de email
       try {
         await EmailService.sendCustomEmailVerification();
-        console.log('📧 Email de verificación enviado con plantilla personalizada');
+        console.log('📧 Email de verificación enviado');
       } catch (emailError) {
         console.warn('⚠️ Error enviando email personalizado, usando predeterminado');
         await sendEmailVerification(user);
         console.log('📧 Email de verificación enviado (predeterminado)');
       }
 
-      // 3. El backend se encargará de crear el perfil cuando se verifique el token
-      // por primera vez, usando la información de Firebase Auth
-      
-      // Por ahora, devolvemos un perfil temporal
+      // 4. Crear perfil en el backend
       const userProfile: UserProfile = {
         id: user.uid,
         email: data.email,
         name: data.name,
         role: data.role,
-        isApproved: data.role === 'buyer',
+        isApproved: data.role === 'buyer' ? USER_CONFIG.BUYER_AUTO_APPROVED : false,
         phone: data.phone || '',
         address: data.address || '',
         businessName: data.businessName || '',
@@ -96,6 +101,15 @@ export class AuthService {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
+
+      // 5. Sincronizar con backend (opcional, depende de tu implementación)
+      try {
+        await apiClient.post<UserProfile>('/auth/register', userProfile, false);
+        console.log('✅ Perfil sincronizado con backend');
+      } catch (backendError) {
+        console.warn('⚠️ Error sincronizando con backend:', backendError);
+        // Continuar sin backend por ahora
+      }
 
       return userProfile;
     } catch (error: unknown) {
@@ -108,12 +122,17 @@ export class AuthService {
   // Login de usuario
   async login(email: string, password: string): Promise<UserProfile> {
     try {
+      console.log('🔐 Iniciando login para:', email);
+      
       // 1. Autenticar con Firebase
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
+      console.log('✅ Usuario autenticado en Firebase:', user.email);
+
       // 2. Verificar si el email está verificado
       if (!user.emailVerified) {
+        console.log('⚠️ Email no verificado, enviando nuevo correo de verificación');
         try {
           await EmailService.sendCustomEmailVerification();
         } catch (emailError) {
@@ -122,11 +141,24 @@ export class AuthService {
         throw new Error('Por favor verifica tu email. Hemos reenviado el correo de verificación.');
       }
 
+      console.log('✅ Email verificado, procediendo con login');
+
       // 3. Verificar token con backend y obtener perfil completo
       const userProfile = await this.verifyTokenAndGetProfile();
       
       if (!userProfile) {
-        throw new Error('Error obteniendo perfil del servidor');
+        // Si no hay perfil en backend, crear uno básico
+        console.log('⚠️ No se encontró perfil en backend, creando perfil básico');
+        const basicProfile: UserProfile = {
+          id: user.uid,
+          email: user.email || '',
+          name: user.displayName || 'Usuario',
+          role: 'buyer',
+          isApproved: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        return basicProfile;
       }
 
       return userProfile;
@@ -161,6 +193,7 @@ export class AuthService {
   async logout(): Promise<void> {
     try {
       await signOut(auth);
+      console.log('✅ Logout exitoso');
     } catch (error: unknown) {
       console.error('❌ Error en logout:', error);
       throw new Error('Error al cerrar sesión');
@@ -170,6 +203,16 @@ export class AuthService {
   // Obtener usuario actual autenticado
   getCurrentUser(): User | null {
     return auth.currentUser;
+  }
+
+  // Verificar si el usuario está autenticado
+  isAuthenticated(): boolean {
+    return auth.currentUser !== null;
+  }
+
+  // Verificar si el email está verificado
+  isEmailVerified(): boolean {
+    return auth.currentUser?.emailVerified || false;
   }
 
   // Traducir códigos de error de Firebase
@@ -187,6 +230,12 @@ export class AuthService {
         return 'Contraseña incorrecta';
       case 'auth/too-many-requests':
         return 'Demasiados intentos. Intenta más tarde';
+      case 'auth/user-disabled':
+        return 'Esta cuenta ha sido deshabilitada';
+      case 'auth/operation-not-allowed':
+        return 'Esta operación no está permitida';
+      case 'auth/network-request-failed':
+        return 'Error de conexión. Verifica tu internet';
       default:
         return 'Error de autenticación';
     }

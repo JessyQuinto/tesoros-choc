@@ -12,7 +12,6 @@ import { useRef } from 'react';
 import { setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import EmailService from '@/services/EmailService';
-import { UserRole } from '@/types/user.types';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
@@ -30,13 +29,22 @@ export const Login = () => {
   // Handle navigation after successful login
   useEffect(() => {
     if (user) {
-      if (user.role === 'vendedor' && !user.isApproved) {
+      console.log('🔄 Login: Usuario autenticado, redirigiendo...', user.role, user.isApproved);
+      
+      if (user.role === 'seller' && !user.isApproved) {
+        console.log('🔄 Login: Vendedor no aprobado, redirigiendo a pending-approval');
         navigate('/pending-approval');
       } else if (user.role === 'admin') {
+        console.log('🔄 Login: Admin, redirigiendo a admin-dashboard');
         navigate('/admin-dashboard');
-      } else if (user.role === 'vendedor' && user.isApproved) {
+      } else if (user.role === 'seller' && user.isApproved) {
+        console.log('🔄 Login: Vendedor aprobado, redirigiendo a seller-dashboard');
         navigate('/seller-dashboard');
+      } else if (user.role === 'buyer') {
+        console.log('🔄 Login: Comprador, redirigiendo a home');
+        navigate('/');
       } else {
+        console.log('🔄 Login: Rol desconocido, redirigiendo a home');
         navigate('/');
       }
     }

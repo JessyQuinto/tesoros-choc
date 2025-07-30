@@ -33,7 +33,7 @@ import {
 
 export const Register = () => {
   const [step, setStep] = useState(1);
-  const [selectedRole, setSelectedRole] = useState<UserRole>('comprador');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('buyer');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -63,7 +63,7 @@ export const Register = () => {
   };
 
   const validateStep3 = () => {
-    if (selectedRole === 'comprador') {
+    if (selectedRole === 'buyer') {
       return true; // Optional fields for buyers
     }
     // Required fields for sellers
@@ -92,8 +92,8 @@ export const Register = () => {
         role: selectedRole,
         phone: formData.phone || undefined,
         address: formData.address || undefined,
-        businessName: selectedRole === 'vendedor' ? formData.businessName : undefined,
-        bio: selectedRole === 'vendedor' ? formData.bio : undefined
+        businessName: selectedRole === 'seller' ? formData.businessName : undefined,
+        bio: selectedRole === 'seller' ? formData.bio : undefined
       });
       
       // Show success message about email verification
@@ -242,10 +242,10 @@ export const Register = () => {
               : 'border-border/50 hover:border-primary/30 hover:bg-muted/30'
           }`}>
             <CardContent className="p-6">
-              <RadioGroupItem value="comprador" id="comprador" className="absolute top-6 right-6" />
-              <Label htmlFor="comprador" className="cursor-pointer block">
+              <RadioGroupItem value="buyer" id="buyer" className="absolute top-6 right-6" />
+              <Label htmlFor="buyer" className="cursor-pointer block">
                 <div className="flex items-start gap-4">
-                  <div className={`p-3 rounded-xl ${selectedRole === 'comprador' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'} transition-colors duration-200`}>
+                  <div className={`p-3 rounded-xl ${selectedRole === 'buyer' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'} transition-colors duration-200`}>
                     <ShoppingBag className="h-6 w-6" />
                   </div>
                   <div className="flex-1 space-y-2">
@@ -265,15 +265,15 @@ export const Register = () => {
           </Card>
 
           <Card className={`relative cursor-pointer transition-all duration-300 hover:shadow-lg ${
-            selectedRole === 'vendedor' 
+            selectedRole === 'seller' 
               ? 'border-primary bg-primary/5 shadow-md transform scale-[1.02]' 
               : 'border-border/50 hover:border-primary/30 hover:bg-muted/30'
           }`}>
             <CardContent className="p-6">
-              <RadioGroupItem value="vendedor" id="vendedor" className="absolute top-6 right-6" />
-              <Label htmlFor="vendedor" className="cursor-pointer block">
+              <RadioGroupItem value="seller" id="seller" className="absolute top-6 right-6" />
+              <Label htmlFor="seller" className="cursor-pointer block">
                 <div className="flex items-start gap-4">
-                  <div className={`p-3 rounded-xl ${selectedRole === 'vendedor' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'} transition-colors duration-200`}>
+                  <div className={`p-3 rounded-xl ${selectedRole === 'seller' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'} transition-colors duration-200`}>
                     <Store className="h-6 w-6" />
                   </div>
                   <div className="flex-1 space-y-2">
@@ -318,10 +318,10 @@ export const Register = () => {
     <div className="space-y-6">
       <div className="text-center space-y-3">
         <h3 className="text-xl font-bold">
-          {selectedRole === 'comprador' ? 'Información adicional' : 'Información de tu negocio'}
+          {selectedRole === 'buyer' ? 'Información adicional' : 'Información de tu negocio'}
         </h3>
         <p className="text-muted-foreground text-sm">
-          {selectedRole === 'comprador' 
+          {selectedRole === 'buyer' 
             ? 'Opcional - Puedes completar esta información más tarde' 
             : 'Requerida para aprobar tu cuenta como vendedor'}
         </p>
@@ -330,7 +330,7 @@ export const Register = () => {
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="phone" className="text-sm font-semibold text-foreground">
-            Teléfono {selectedRole === 'vendedor' && <span className="text-destructive">*</span>}
+            Teléfono {selectedRole === 'seller' && <span className="text-destructive">*</span>}
           </Label>
           <div className="relative group">
             <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors duration-200" />
@@ -340,14 +340,14 @@ export const Register = () => {
               value={formData.phone}
               onChange={(e) => handleInputChange('phone', e.target.value)}
               className="pl-12 h-12 bg-background/50 border-border/50 rounded-xl focus:border-primary/50 focus:ring-primary/20 transition-all duration-200"
-              required={selectedRole === 'vendedor'}
+              required={selectedRole === 'seller'}
             />
           </div>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="address" className="text-sm font-semibold text-foreground">
-            Dirección {selectedRole === 'vendedor' && <span className="text-destructive">*</span>}
+            Dirección {selectedRole === 'seller' && <span className="text-destructive">*</span>}
           </Label>
           <div className="relative group">
             <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors duration-200" />
@@ -357,12 +357,12 @@ export const Register = () => {
               value={formData.address}
               onChange={(e) => handleInputChange('address', e.target.value)}
               className="pl-12 h-12 bg-background/50 border-border/50 rounded-xl focus:border-primary/50 focus:ring-primary/20 transition-all duration-200"
-              required={selectedRole === 'vendedor'}
+              required={selectedRole === 'seller'}
             />
           </div>
         </div>
 
-        {selectedRole === 'vendedor' && (
+        {selectedRole === 'seller' && (
           <>
             <div className="space-y-2">
               <Label htmlFor="businessName" className="text-sm font-semibold text-foreground">
@@ -425,7 +425,7 @@ export const Register = () => {
           )}
           {isLoading 
             ? 'Creando cuenta...' 
-            : selectedRole === 'comprador' 
+            : selectedRole === 'buyer' 
               ? 'Crear cuenta' 
               : 'Enviar solicitud'
           }
@@ -462,7 +462,7 @@ export const Register = () => {
             <CardDescription className="text-lg text-muted-foreground">
               {step === 1 && 'Comencemos creando tu cuenta'}
               {step === 2 && 'Elige tu tipo de cuenta'}
-              {step === 3 && (selectedRole === 'comprador' ? 'Información adicional' : 'Completa tu perfil de vendedor')}
+              {step === 3 && (selectedRole === 'buyer' ? 'Información adicional' : 'Completa tu perfil de vendedor')}
             </CardDescription>
           </div>
 

@@ -38,7 +38,7 @@ export const USER_CONFIG = {
 
   // Configuración por defecto para nuevos usuarios
   DEFAULT_NEW_USER_ROLE: 'buyer' as UserRole,
-  SELLER_REQUIRES_APPROVAL: false, // Los sellers nuevos requieren aprobación
+  SELLER_REQUIRES_APPROVAL: true, // Los sellers nuevos requieren aprobación
   BUYER_AUTO_APPROVED: true,       // Los buyers se aprueban automáticamente
 
   // Configuración de backend

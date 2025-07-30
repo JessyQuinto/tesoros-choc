@@ -13,6 +13,8 @@ interface AuthContextType {
   logout: () => Promise<void>;
   clearError: () => void;
   updateUser: (user: UserProfile) => void;
+  isAuthenticated: boolean;
+  isEmailVerified: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,19 +39,46 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Escuchar cambios de autenticación
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log('🔄 AuthContext: Cambio de estado de autenticación:', firebaseUser?.email);
       setIsLoading(true);
       
-      if (firebaseUser && firebaseUser.emailVerified) {
+      if (firebaseUser) {
         try {
+          // Verificar si el email está verificado
+          if (!firebaseUser.emailVerified) {
+            console.log('⚠️ AuthContext: Usuario no verificado');
+            setUser(null);
+            setIsLoading(false);
+            return;
+          }
+
+          console.log('✅ AuthContext: Usuario verificado, obteniendo perfil');
           // Usuario autenticado - verificar token con backend y obtener perfil
           const userProfile = await authService.verifyTokenAndGetProfile();
-          setUser(userProfile);
+          
+          if (userProfile) {
+            console.log('✅ AuthContext: Perfil obtenido:', userProfile.email);
+            setUser(userProfile);
+          } else {
+            console.log('⚠️ AuthContext: No se pudo obtener perfil, creando básico');
+            // Crear perfil básico si no existe en backend
+            const basicProfile: UserProfile = {
+              id: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              name: firebaseUser.displayName || 'Usuario',
+              role: 'buyer',
+              isApproved: true,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            };
+            setUser(basicProfile);
+          }
         } catch (err) {
-          console.error('Error obteniendo perfil del backend:', err);
+          console.error('❌ AuthContext: Error obteniendo perfil del backend:', err);
           setUser(null);
         }
       } else {
-        // Usuario no autenticado o email no verificado
+        console.log('❌ AuthContext: No hay usuario autenticado');
         setUser(null);
       }
       
@@ -61,11 +90,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('🚀 AuthContext: Iniciando login para:', email);
       setIsLoading(true);
       setError(null);
+      
       const userProfile = await authService.login(email, password);
+      console.log('✅ AuthContext: Login exitoso:', userProfile.email);
       setUser(userProfile);
     } catch (err: unknown) {
+      console.error('❌ AuthContext: Error en login:', err);
       const error = err as Error;
       setError(error.message);
       throw err;
@@ -83,7 +116,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const userProfile = await authService.register(data);
       console.log('✅ AuthContext: Registro exitoso, perfil recibido:', userProfile);
       
-      setUser(userProfile);
+      // No establecer el usuario aquí porque necesita verificar email primero
+      console.log('ℹ️ AuthContext: Usuario registrado pero requiere verificación de email');
     } catch (err: unknown) {
       console.error('❌ AuthContext: Error en registro:', err);
       const error = err as { message?: string };
@@ -96,10 +130,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = async () => {
     try {
+      console.log('🚀 AuthContext: Iniciando logout');
       setIsLoading(true);
       await authService.logout();
       setUser(null);
+      console.log('✅ AuthContext: Logout exitoso');
     } catch (err: unknown) {
+      console.error('❌ AuthContext: Error en logout:', err);
       const error = err as Error;
       setError(error.message);
     } finally {
@@ -124,6 +161,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     logout,
     clearError,
     updateUser,
+    isAuthenticated: authService.isAuthenticated(),
+    isEmailVerified: authService.isEmailVerified(),
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
