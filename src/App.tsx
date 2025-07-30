@@ -26,7 +26,7 @@ import NotFound from './pages/NotFound';
 // Auth pages
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
-import { PendingApproval } from './pages/PendingApproval';
+import PendingApproval from './pages/PendingApproval';
 
 // Dashboard pages
 import BuyerDashboard from './pages/BuyerDashboard';
@@ -37,7 +37,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import { AdminUserManagement } from './pages/AdminUserManagement';
 import { ProductManagement } from './pages/ProductManagement';
 import { OrderManagement } from './pages/OrderManagement';
-import { ProductForm } from './pages/ProductForm';
+import ProductForm from './pages/ProductForm';
 import ProductModeration from './pages/ProductModeration';
 import PaymentManagement from './pages/PaymentManagement';
 import ContentManagement from './pages/ContentManagement';
@@ -143,6 +143,28 @@ function App() {
                       </ProtectedRoute>
                     } />
 
+                    {/* Seller routes - Require seller role */}
+                    <Route path="/seller/products" element={
+                      <ProtectedRoute requiredRole="vendedor" requireApproval={true}>
+                        <ProductManagement />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/seller/products/new" element={
+                      <ProtectedRoute requiredRole="vendedor" requireApproval={true}>
+                        <ProductForm />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/seller/products/:id/edit" element={
+                      <ProtectedRoute requiredRole="vendedor" requireApproval={true}>
+                        <ProductForm />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/seller/orders" element={
+                      <ProtectedRoute requiredRole="vendedor" requireApproval={true}>
+                        <OrderManagement />
+                      </ProtectedRoute>
+                    } />
+
                     {/* Admin routes - Require admin role */}
                     <Route path="/admin/users" element={
                       <ProtectedRoute requiredRole="admin">
@@ -212,6 +234,16 @@ function App() {
                     <Route path="/admin/reports" element={
                       <ProtectedRoute requiredRole="admin">
                         <AdminReports />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin/pending-approval" element={
+                      <ProtectedRoute requiredRole="admin">
+                        <PendingApproval />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin/product-moderation" element={
+                      <ProtectedRoute requiredRole="admin">
+                        <ProductModeration />
                       </ProtectedRoute>
                     } />
 
