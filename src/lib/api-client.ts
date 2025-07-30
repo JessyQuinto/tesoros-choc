@@ -26,8 +26,12 @@ export class ApiClient {
     };
 
     if (user) {
+      console.log('🔐 ApiClient: Usuario autenticado, obteniendo token...');
       const token = await user.getIdToken();
+      console.log('🔐 ApiClient: Token obtenido, longitud:', token.length);
       headers['Authorization'] = `Bearer ${token}`;
+    } else {
+      console.log('⚠️ ApiClient: No hay usuario autenticado');
     }
 
     return headers;
@@ -79,11 +83,20 @@ export class ApiClient {
     const baseHeaders = requireAuth ? await this.getAuthHeaders() : { 'Content-Type': 'application/json' };
     const headers = { ...baseHeaders, ...customHeaders };
     
+    console.log('🌐 ApiClient: POST Request:', { 
+      endpoint, 
+      requireAuth, 
+      hasCustomHeaders: !!customHeaders,
+      headers: Object.keys(headers)
+    });
+    
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'POST',
       headers,
       body: JSON.stringify(data),
     });
+    
+    console.log('📡 ApiClient: Response status:', response.status);
     
     return this.handleResponse<T>(response);
   }
