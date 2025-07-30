@@ -70,8 +70,14 @@ export class ApiClient {
     return this.handleResponse<T>(response);
   }
 
-  async post<T>(endpoint: string, data: Record<string, unknown> | unknown[], requireAuth: boolean = true): Promise<T> {
-    const headers = requireAuth ? await this.getAuthHeaders() : { 'Content-Type': 'application/json' };
+  async post<T>(
+    endpoint: string, 
+    data: Record<string, unknown> | unknown[], 
+    requireAuth: boolean = true,
+    customHeaders?: Record<string, string>
+  ): Promise<T> {
+    const baseHeaders = requireAuth ? await this.getAuthHeaders() : { 'Content-Type': 'application/json' };
+    const headers = { ...baseHeaders, ...customHeaders };
     
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'POST',

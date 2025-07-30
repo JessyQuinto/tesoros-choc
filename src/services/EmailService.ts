@@ -76,12 +76,13 @@ export class EmailService {
 
   /**
    * Envía correo de bienvenida (requiere backend o servicio externo)
+   * DESHABILITADO para evitar bucles - se maneja desde el backend
    */
   static async sendWelcomeEmail(data: WelcomeEmailData) {
     try {
-      // Por ahora, solo simulamos el envío y mostramos el template en console
-      console.log('🎉 Simulando envío de correo de bienvenida para:', data.userEmail);
-      console.log('📧 Template de bienvenida:', this.getWelcomeEmailHTML(data));
+      // DESHABILITADO: El correo de bienvenida se maneja desde el backend
+      // para evitar bucles infinitos en el frontend
+      console.log('📧 Correo de bienvenida deshabilitado en frontend - se maneja desde backend');
       
       // En un entorno real, aquí llamarías a tu backend o Firebase Functions
       // await fetch('/api/sendWelcomeEmail', { ... })
@@ -89,8 +90,8 @@ export class EmailService {
       // Simular delay de envío
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      console.log('✅ Correo de bienvenida enviado exitosamente (simulado)');
-      return { success: true, message: 'Correo de bienvenida enviado' };
+      console.log('✅ Correo de bienvenida manejado desde backend');
+      return { success: true, message: 'Correo de bienvenida manejado desde backend' };
     } catch (error) {
       console.error('❌ Error enviando correo de bienvenida:', error);
       return { success: false, message: 'Error enviando correo' };

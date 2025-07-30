@@ -35,8 +35,13 @@ export class AuthService {
       const user = auth.currentUser;
       if (!user) return null;
 
-      // Verificar token con el backend
-      const profile = await apiClient.post<UserProfile>('/auth/verify-token', {});
+      // Obtener el token de Firebase
+      const token = await user.getIdToken();
+      
+      // Verificar token con el backend - no requiere auth automática porque enviamos el token manualmente
+      const profile = await apiClient.post<UserProfile>('/auth/verify-token', {}, false, {
+        'Authorization': `Bearer ${token}`
+      });
       return profile;
     } catch (error) {
       console.error('Error verificando token:', error);

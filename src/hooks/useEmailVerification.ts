@@ -57,7 +57,7 @@ export const useEmailVerification = (
   const [checkIntervalId, setCheckIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [countdownIntervalId, setCountdownIntervalId] = useState<NodeJS.Timeout | null>(null);
 
-  // Función para verificar el estado del email
+  // Función para verificar el estado del email - memoizada para evitar re-renders
   const checkEmailVerification = useCallback(async (): Promise<boolean> => {
     if (!auth.currentUser || isVerified) return false;
 
@@ -72,21 +72,8 @@ export const useEmailVerification = (
         if (checkIntervalId) clearInterval(checkIntervalId);
         if (countdownIntervalId) clearInterval(countdownIntervalId);
         
-        // Enviar correo de bienvenida si se proporcionaron datos del usuario
-        if (userData) {
-          try {
-            await EmailService.sendWelcomeEmail({
-              userName: userData.name,
-              userEmail: userData.email,
-              userRole: userData.role,
-              isApproved: userData.isApproved
-            });
-            console.log('✅ Correo de bienvenida enviado exitosamente');
-          } catch (error) {
-            console.warn('⚠️ No se pudo enviar el correo de bienvenida:', error);
-            // No interrumpimos el flujo por este error
-          }
-        }
+        // NO enviar correo de bienvenida automáticamente para evitar bucles
+        // El correo de bienvenida se enviará desde el backend cuando se verifique el token
         
         // Ejecutar callback de éxito
         onVerificationSuccess?.();
@@ -98,7 +85,7 @@ export const useEmailVerification = (
       console.error('Error al verificar email:', error);
       return false;
     }
-  }, [checkIntervalId, countdownIntervalId, isVerified, onVerificationSuccess, userData]);
+  }, [isVerified, checkIntervalId, countdownIntervalId, onVerificationSuccess]);
 
   // Función para limpiar intervalos
   const clearIntervals = useCallback(() => {
@@ -161,7 +148,7 @@ export const useEmailVerification = (
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   }, []);
 
-  // Inicializar verificación automática
+  // Inicializar verificación automática - SOLO UNA VEZ al montar el componente
   useEffect(() => {
     if (!auth.currentUser || isVerified || !isAutoChecking) return;
 
@@ -191,7 +178,7 @@ export const useEmailVerification = (
       clearInterval(newCheckInterval);
       clearInterval(newCountdown);
     };
-  }, [checkEmailVerification, checkInterval, isAutoChecking, isVerified, onTimeout]);
+  }, []); // Solo se ejecuta al montar el componente
 
   // Limpiar intervalos al desmontar
   useEffect(() => {
