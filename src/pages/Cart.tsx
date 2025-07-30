@@ -21,47 +21,58 @@ import {
 const Cart = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { items, updateQuantity, removeFromCart, clearCart, totalItems, totalPrice } = useCart();
+  const { 
+    items, 
+    loading, 
+    error,
+    updateQuantity, 
+    removeFromCart, 
+    clearCart, 
+    totalItems, 
+    totalPrice 
+  } = useCart();
   const { toast } = useToast();
   
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
-  const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set());
+  const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
 
   const shippingCost = totalPrice > 100000 ? 0 : 8000; // Free shipping over 100k
   const totalWithShipping = totalPrice + shippingCost;
 
-  const handleQuantityChange = async (productId: number, newQuantity: number) => {
+  const handleQuantityChange = async (productId: string, newQuantity: number) => {
     setUpdatingItems(prev => new Set(prev).add(productId));
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    updateQuantity(productId, newQuantity);
-    
-    setUpdatingItems(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(productId);
-      return newSet;
-    });
+    try {
+      await updateQuantity(productId, newQuantity);
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+    } finally {
+      setUpdatingItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
+    }
   };
 
-  const handleRemoveItem = async (productId: number, productName: string) => {
+  const handleRemoveItem = async (productId: string, productName: string) => {
     setUpdatingItems(prev => new Set(prev).add(productId));
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    removeFromCart(productId);
-    setUpdatingItems(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(productId);
-      return newSet;
-    });
-    
-    toast({
-      title: "Producto eliminado",
-      description: `${productName} se eliminó del carrito`
-    });
+    try {
+      await removeFromCart(productId);
+      toast({
+        title: "Producto eliminado",
+        description: `${productName} se eliminó del carrito`
+      });
+    } catch (error) {
+      console.error('Error removing item:', error);
+    } finally {
+      setUpdatingItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
+    }
   };
 
   const handleCheckout = async () => {
@@ -88,33 +99,63 @@ const Cart = () => {
     }, 1000);
   };
 
-  const handleClearCart = () => {
-    clearCart();
-    toast({
-      title: "Carrito vaciado",
-      description: "Se eliminaron todos los productos del carrito"
-    });
+  const handleClearCart = async () => {
+    try {
+      await clearCart();
+      toast({
+        title: "Carrito vaciado",
+        description: "Se eliminaron todos los productos del carrito"
+      });
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+    }
   };
 
   if (!user || user.role !== 'buyer') {
     return (
-      <div><div className="container-full py-8">
-          <Card>
-            <CardContent className="p-8 text-center">
-              <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Restringido</h2>
-              <p className="mb-4">Debes iniciar sesión como comprador para ver el carrito.</p>
-              <Button onClick={() => navigate('/auth')}>
-                Iniciar Sesión
-              </Button>
-            </CardContent>
-          </Card>
+      <div className="container-full py-8">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h2 className="text-2xl font-bold text-destructive mb-4">Acceso Restringido</h2>
+            <p className="mb-4">Debes iniciar sesión como comprador para ver el carrito.</p>
+            <Button onClick={() => navigate('/auth')}>
+              Iniciar Sesión
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="container-full py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner size="lg" />
         </div>
       </div>
     );
   }
 
+  if (error) {
+    return (
+      <div className="container-full py-8">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h2 className="text-2xl font-bold text-destructive mb-4">Error</h2>
+            <p className="mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()}>
+              Reintentar
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background"><div className="container-full py-8">
+    <div className="min-h-screen bg-background">
+      <div className="container-full py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button
@@ -165,20 +206,20 @@ const Cart = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {items.map((item) => (
-                    <div key={item.id} className="flex gap-4 p-4 border rounded-lg">
+                    <div key={item.productId} className="flex gap-4 p-4 border rounded-lg">
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        src={item.product?.images[0] || '/placeholder.svg'}
+                        alt={item.product?.name || 'Producto'}
                         className="w-20 h-20 object-cover rounded-lg"
                       />
                       
                       <div className="flex-1">
-                        <h3 className="font-semibold mb-1">{item.name}</h3>
+                        <h3 className="font-semibold mb-1">{item.product?.name || 'Producto no disponible'}</h3>
                         <p className="text-sm text-muted-foreground mb-2">
-                          por {item.seller}
+                          por {item.product?.sellerName || 'Vendedor'}
                         </p>
                         <p className="font-bold text-primary">
-                          ${item.price.toLocaleString()}
+                          ${(item.product?.price || 0).toLocaleString()}
                         </p>
                       </div>
 
@@ -187,10 +228,10 @@ const Cart = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                          disabled={item.quantity <= 1 || updatingItems.has(item.id)}
+                          onClick={() => handleQuantityChange(item.productId, item.quantity - 1)}
+                          disabled={item.quantity <= 1 || updatingItems.has(item.productId)}
                         >
-                          {updatingItems.has(item.id) ? (
+                          {updatingItems.has(item.productId) ? (
                             <LoadingSpinner size="sm" />
                           ) : (
                             <Minus className="h-3 w-3" />
@@ -202,10 +243,10 @@ const Cart = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                          disabled={item.quantity >= item.maxStock || updatingItems.has(item.id)}
+                          onClick={() => handleQuantityChange(item.productId, item.quantity + 1)}
+                          disabled={item.quantity >= (item.product?.maxStock || 0) || updatingItems.has(item.productId)}
                         >
-                          {updatingItems.has(item.id) ? (
+                          {updatingItems.has(item.productId) ? (
                             <LoadingSpinner size="sm" />
                           ) : (
                             <Plus className="h-3 w-3" />
@@ -216,16 +257,16 @@ const Cart = () => {
                       {/* Subtotal and Remove */}
                       <div className="text-right">
                         <p className="font-bold mb-2">
-                          ${(item.price * item.quantity).toLocaleString()}
+                          ${((item.product?.price || 0) * item.quantity).toLocaleString()}
                         </p>
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleRemoveItem(item.id, item.name)}
-                          disabled={updatingItems.has(item.id)}
+                          onClick={() => handleRemoveItem(item.productId, item.product?.name || 'Producto')}
+                          disabled={updatingItems.has(item.productId)}
                           className="text-destructive hover:text-destructive"
                         >
-                          {updatingItems.has(item.id) ? (
+                          {updatingItems.has(item.productId) ? (
                             <LoadingSpinner size="sm" />
                           ) : (
                             <Trash2 className="h-4 w-4" />
@@ -306,7 +347,9 @@ const Cart = () => {
                         Proceder al Pago
                       </>
                     )}
-                  </Button>                  <div className="text-xs text-muted-foreground text-center">
+                  </Button>
+                  
+                  <div className="text-xs text-muted-foreground text-center">
                     Compra segura y protegida
                   </div>
                 </CardContent>
@@ -356,7 +399,8 @@ const Cart = () => {
             </div>
           </div>
         )}
-      </div></div>
+      </div>
+    </div>
   );
 };
 
